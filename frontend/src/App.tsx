@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import {
-  api, ApiError, BriefStatus, BriefSummary, dateTime, getUserId, setUserId, STATUS_LABEL, User,
+  api, ApiError, BriefStatus, BriefSummary, dateTime, rememberedPersona, STATUS_LABEL, User,
 } from "./api";
+import Approvals from "./Approvals";
 import Detail from "./Detail";
 
 export const SAMPLE_BRIEFS: { label: string; title: string; text: string }[] = [
@@ -37,7 +38,10 @@ export function StatusChip({ status }: { status: BriefStatus }) {
     received: "chip-muted",
     clarification_needed: "chip-warn",
     ready_for_pricing: "chip-info",
-    priced: "chip-ok",
+    priced: "chip-info",
+    approved: "chip-ok",
+    rejected: "chip-bad",
+    finalized: "chip-ok",
   }[status];
   return <span className={`chip ${cls}`}>{STATUS_LABEL[status]}</span>;
 }
@@ -54,16 +58,40 @@ export function ErrorBanner({ error, onRetry }: { error: unknown; onRetry?: () =
 
 export default function App() {
   const [users, setUsers] = useState<User[]>([]);
-  const [userId, setUid] = useState(getUserId());
+  const [me, setMe] = useState<User | null>(null);
+  const [authError, setAuthError] = useState<ApiError | null>(null);
   const [provider, setProvider] = useState<string | null>(null);
 
-  useEffect(() => {
-    api.users().then(setUsers).catch(() => setUsers([]));
-    api.health().then((h) => setProvider(h.llm_provider)).catch(() => setProvider(null));
+  // Resume the cookie session; in demo mode, sign in as the remembered persona if there is none.
+  const boot = useCallback(async () => {
+    setAuthError(null);
+    try {
+      const h = await api.health();
+      setProvider(h.llm_provider);
+      if (h.demo_mode) api.users().then(setUsers).catch(() => setUsers([]));
+      try {
+        setMe(await api.me());
+      } catch (e) {
+        if (!(e instanceof ApiError && e.status === 401) || !h.demo_mode) throw e;
+        setMe(await api.demoLogin(rememberedPersona()));
+      }
+    } catch (e) {
+      setAuthError(e as ApiError);
+    }
   }, []);
+  useEffect(() => { boot(); }, [boot]);
 
-  const me = users.find((u) => u.id === userId);
-  const switchUser = (id: string) => { setUserId(id); setUid(id); };
+  const switchUser = async (id: string) => {
+    try { setMe(await api.demoLogin(id)); } catch (e) { setAuthError(e as ApiError); }
+  };
+
+  if (authError) {
+    return <main className="main"><ErrorBanner error={authError} onRetry={boot} /></main>;
+  }
+  if (!me) {
+    return <main className="main" aria-busy="true"><div className="skeleton" style={{ height: 32, width: 280 }} /></main>;
+  }
+  const canSeeQueue = me.role !== "sales";
 
   return (
     <div className="shell">
@@ -72,12 +100,12 @@ export default function App() {
         <div className="brand"><span className="brand-mark" aria-hidden />Decision Hub</div>
         <span className="nav-soon">Overview <small>Phase 5</small></span>
         <NavLink to="/" end>Requests</NavLink>
-        <span className="nav-soon">Approvals <small>Phase 4</small></span>
+        {canSeeQueue && <NavLink to="/approvals">Approvals</NavLink>}
         <span className="nav-soon">Workflow monitor <small>Phase 5</small></span>
         <div className="nav-foot">
-          <label htmlFor="who">Demo identity (not real sign-in)</label>
-          <select id="who" className="select" value={userId} onChange={(e) => switchUser(e.target.value)}>
-            {users.length === 0 && <option value={userId}>{userId}</option>}
+          <label htmlFor="who">Demo persona (signed session)</label>
+          <select id="who" className="select" value={me.id} onChange={(e) => switchUser(e.target.value)}>
+            {users.length === 0 && <option value={me.id}>{me.display_name}</option>}
             {users.map((u) => (
               <option key={u.id} value={u.id}>{u.display_name} · {u.role}</option>
             ))}
@@ -89,9 +117,10 @@ export default function App() {
           )}
         </div>
       </nav>
-      <main id="main" className="main" key={userId}>
+      <main id="main" className="main" key={me.id}>
         <Routes>
           <Route path="/" element={<Inbox me={me} />} />
+          <Route path="/approvals" element={<Approvals me={me} />} />
           <Route path="/briefs/:id" element={<Detail me={me} />} />
           <Route path="*" element={<div className="empty"><strong>Page not found</strong><Link to="/">Back to requests</Link></div>} />
         </Routes>
@@ -123,7 +152,7 @@ function Inbox({ me }: { me?: User }) {
       <div className="page-head">
         <div>
           <h1>Requests</h1>
-          <p>Campaign briefs from sales, from intake to a priced quote.</p>
+          <p>Campaign briefs from sales, from intake to an approved, final proposal.</p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <select aria-label="Filter by status" className="select" style={{ width: 200 }} value={filter}

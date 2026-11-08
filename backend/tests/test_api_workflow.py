@@ -142,7 +142,7 @@ def test_uat_a05_quote_matches_oracle_and_records_rate_card_version(client):
     assert (q["list_total"], q["net_total"], q["cost_total"], q["margin_pct"]) == (
         "102300.00", "102300.00", "59808.00", "41.54",
     )
-    assert q["status"] == "draft" and q["pricing"]["flags"] == []
+    assert q["status"] == "pending_approval" and q["pricing"]["flags"] == []
     assert client.get(f"/v1/briefs/{bid}", headers=ANALYST).json()["status"] == "priced"
 
 
@@ -151,7 +151,7 @@ def test_uat_a06_discount_over_threshold_requires_manager(client):
     q = client.post(
         f"/v1/briefs/{bid}/quotes", json={"discount_pct": "12"}, headers=ANALYST
     ).json()
-    assert q["status"] == "needs_review"
+    assert q["status"] == "pending_approval" and q["pricing"]["requires_manager_review"]
     flags = {f["code"]: f["requires"] for f in q["pricing"]["flags"]}
     assert flags["discount_above_threshold"] == "manager"
     assert flags["margin_below_floor"] == "manager"  # 33.56% < 35%

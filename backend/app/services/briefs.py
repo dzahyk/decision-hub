@@ -25,6 +25,9 @@ from app.domain.requirement import (
 from app.llm.base import ExtractionError, ExtractionProvider
 from app.models import AuditEvent, Brief, Quote, RateCard, RequirementRevision, User, utcnow
 
+# Quote states in which an approval is still "live" and must be invalidated by any change.
+OPEN_QUOTE_STATES = ("pending_approval", "approved")
+
 
 class WorkflowError(Exception):
     """Business-rule violation. `code` is stable and shown to the client."""
@@ -36,10 +39,11 @@ class WorkflowError(Exception):
         self.http_status = http_status
 
 
-def _audit(
+def audit(
     db: Session,
     *,
     actor: str,
+    brief_id: uuid.UUID | None,
     aggregate_type: str,
     aggregate_id: Any,
     action: str,
@@ -51,6 +55,7 @@ def _audit(
         AuditEvent(
             aggregate_type=aggregate_type,
             aggregate_id=str(aggregate_id),
+            brief_id=brief_id,
             actor=actor,
             action=action,
             before=before,
@@ -62,6 +67,21 @@ def _audit(
 
 def _hash(title: str, raw_text: str, source: str) -> str:
     return hashlib.sha256(f"{source}\x1f{title}\x1f{raw_text}".encode()).hexdigest()
+
+
+def lock_brief(db: Session, brief_id: uuid.UUID) -> Brief:
+    """Row lock so concurrent edits / decisions on one brief are serialized."""
+    brief = db.scalar(select(Brief).where(Brief.id == brief_id).with_for_update())
+    if brief is None:
+        raise WorkflowError("not_found", "brief not found", http_status=404)
+    return brief
+
+
+def ensure_not_finalized(brief: Brief) -> None:
+    if brief.status == "finalized":
+        raise WorkflowError(
+            "brief_finalized", "this brief has a final proposal and can no longer change"
+        )
 
 
 # ------------------------------------------------------------------ intake (A-FR-01/02)
@@ -109,9 +129,10 @@ def create_brief(
         if existing and existing.payload_hash == payload_hash:
             return existing, True
         raise WorkflowError("idempotency_conflict", "Idempotency-Key conflict") from None
-    _audit(
+    audit(
         db,
         actor=user.id,
+        brief_id=brief.id,
         aggregate_type="brief",
         aggregate_id=brief.id,
         action="brief.created",
@@ -122,7 +143,7 @@ def create_brief(
     return brief, False
 
 
-# ------------------------------------------------------------------ revisions (A-FR-03/04/05)
+# ------------------------------------------------------------------ status helpers
 
 
 def latest_revision(db: Session, brief_id: uuid.UUID) -> RequirementRevision | None:
@@ -131,6 +152,12 @@ def latest_revision(db: Session, brief_id: uuid.UUID) -> RequirementRevision | N
         .where(RequirementRevision.brief_id == brief_id)
         .order_by(RequirementRevision.revision.desc())
         .limit(1)
+    )
+
+
+def latest_quote(db: Session, brief_id: uuid.UUID) -> Quote | None:
+    return db.scalar(
+        select(Quote).where(Quote.brief_id == brief_id).order_by(Quote.revision.desc()).limit(1)
     )
 
 
@@ -147,12 +174,15 @@ def _status_for(validation_status: str) -> str:
     return "ready_for_pricing" if validation_status == "valid" else "clarification_needed"
 
 
-def _set_status(db: Session, brief: Brief, new: str, *, actor: str, reason: str, rid: str | None):
+def set_brief_status(
+    db: Session, brief: Brief, new: str, *, actor: str, reason: str, rid: str | None
+) -> None:
     if brief.status == new:
         return
-    _audit(
+    audit(
         db,
         actor=actor,
+        brief_id=brief.id,
         aggregate_type="brief",
         aggregate_id=brief.id,
         action="brief.status_changed",
@@ -162,6 +192,34 @@ def _set_status(db: Session, brief: Brief, new: str, *, actor: str, reason: str,
     )
     brief.status = new
     brief.updated_at = utcnow()
+
+
+def supersede_open_quotes(
+    db: Session, brief: Brief, *, actor: str, reason: str, rid: str | None
+) -> list[Quote]:
+    """A-BR-06: any change after pricing/approval invalidates the live quote and its approval."""
+    open_quotes = db.scalars(
+        select(Quote)
+        .where(Quote.brief_id == brief.id, Quote.status.in_(OPEN_QUOTE_STATES))
+        .with_for_update()
+    ).all()
+    for q in open_quotes:
+        audit(
+            db,
+            actor=actor,
+            brief_id=brief.id,
+            aggregate_type="quote",
+            aggregate_id=q.id,
+            action="quote.superseded",
+            before={"status": q.status, "revision": q.revision},
+            after={"status": "superseded", "reason": reason},
+            request_id=rid,
+        )
+        q.status = "superseded"
+    return list(open_quotes)
+
+
+# ------------------------------------------------------------------ revisions (A-FR-03/04/05)
 
 
 def run_extraction(
@@ -174,13 +232,15 @@ def run_extraction(
 ) -> RequirementRevision:
     """Ask the provider for field suggestions, validate them, store a new revision.
     On provider failure nothing is invented: the error is audited and re-raised."""
+    ensure_not_finalized(brief)
     started = time.perf_counter()
     try:
         out = provider.extract(brief.raw_text, received_on=brief.received_at.date())
     except ExtractionError as exc:
-        _audit(
+        audit(
             db,
             actor=user.id,
+            brief_id=brief.id,
             aggregate_type="brief",
             aggregate_id=brief.id,
             action="extraction.failed",
@@ -191,6 +251,8 @@ def run_extraction(
         raise WorkflowError("extraction_failed", str(exc), http_status=502) from exc
     latency_ms = int((time.perf_counter() - started) * 1000)
 
+    brief = lock_brief(db, brief.id)
+    ensure_not_finalized(brief)
     fields = {name: out.fields.get(name, FieldValue()) for name in REQUIRED_FIELDS}
     validation = validate_requirement(fields)
     rev = RequirementRevision(
@@ -208,9 +270,10 @@ def run_extraction(
     )
     db.add(rev)
     db.flush()
-    _audit(
+    audit(
         db,
         actor=user.id,
+        brief_id=brief.id,
         aggregate_type="brief",
         aggregate_id=brief.id,
         action="requirements.extracted",
@@ -223,7 +286,10 @@ def run_extraction(
         },
         request_id=request_id,
     )
-    _set_status(
+    supersede_open_quotes(
+        db, brief, actor=user.id, reason=f"requirements r{rev.revision}", rid=request_id
+    )
+    set_brief_status(
         db, brief, _status_for(validation.status), actor=user.id,
         reason=f"extraction r{rev.revision}: {validation.status}", rid=request_id,
     )
@@ -246,6 +312,8 @@ def edit_requirements(
         raise WorkflowError(
             "unknown_field", f"unknown field(s): {', '.join(sorted(unknown))}", http_status=422
         )
+    brief = lock_brief(db, brief.id)
+    ensure_not_finalized(brief)
     prev = latest_revision(db, brief.id)
     base = {k: FieldValue() for k in REQUIRED_FIELDS}
     if prev:
@@ -270,9 +338,10 @@ def edit_requirements(
     )
     db.add(rev)
     db.flush()
-    _audit(
+    audit(
         db,
         actor=user.id,
+        brief_id=brief.id,
         aggregate_type="brief",
         aggregate_id=brief.id,
         action="requirements.edited",
@@ -280,7 +349,10 @@ def edit_requirements(
         after={"revision": rev.revision, "changes": changes, "validation": validation.status},
         request_id=request_id,
     )
-    _set_status(
+    supersede_open_quotes(
+        db, brief, actor=user.id, reason=f"requirements r{rev.revision}", rid=request_id
+    )
+    set_brief_status(
         db, brief, _status_for(validation.status), actor=user.id,
         reason=f"analyst edit r{rev.revision}: {validation.status}", rid=request_id,
     )
@@ -307,7 +379,10 @@ def create_quote(
     request_id: str | None = None,
 ) -> Quote:
     """Price the latest *valid* revision with the active rate card. Incomplete briefs are
-    refused (A-BR-01): there is no path to a quote without a valid requirement."""
+    refused (A-BR-01): there is no path to a quote without a valid requirement.
+    Every new quote supersedes the previous open one and needs its own approval."""
+    brief = lock_brief(db, brief.id)
+    ensure_not_finalized(brief)
     rev = latest_revision(db, brief.id)
     if rev is None or rev.validation.get("status") != "valid":
         raise WorkflowError(
@@ -328,7 +403,9 @@ def create_quote(
     revision = (
         db.scalar(select(func.max(Quote.revision)).where(Quote.brief_id == brief.id)) or 0
     ) + 1
-    needs_review = result.requires_manager_review or result.requires_operations_review
+    supersede_open_quotes(
+        db, brief, actor=user.id, reason=f"re-priced as r{revision}", rid=request_id
+    )
     quote = Quote(
         brief_id=brief.id,
         requirement_revision_id=rev.id,
@@ -340,19 +417,19 @@ def create_quote(
         cost_total=result.cost_total,
         margin_pct=result.margin_pct,
         pricing=result.model_dump(),
-        status="needs_review" if needs_review else "draft",
+        status="pending_approval",
         created_by=user.id,
     )
     db.add(quote)
     db.flush()
-    _audit(
+    audit(
         db,
         actor=user.id,
+        brief_id=brief.id,
         aggregate_type="quote",
         aggregate_id=quote.id,
         action="quote.priced",
         after={
-            "brief_id": str(brief.id),
             "revision": revision,
             "requirement_revision": rev.revision,
             "rate_card_version": card.version,
@@ -363,6 +440,8 @@ def create_quote(
         },
         request_id=request_id,
     )
-    _set_status(db, brief, "priced", actor=user.id, reason=f"quote r{revision}", rid=request_id)
+    set_brief_status(
+        db, brief, "priced", actor=user.id, reason=f"quote r{revision}", rid=request_id
+    )
     db.commit()
     return quote

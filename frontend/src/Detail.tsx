@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   api, ApiError, AuditEvent, BriefDetail, dateTime, FIELD_LABEL, FieldValue, humanize, money,
-  RateCard, RequirementSchema, Revision, User,
+  NotificationRow, QUOTE_STATUS, RateCard, RequirementSchema, Revision, User,
 } from "./api";
 import { ErrorBanner, StatusChip } from "./App";
+import { nextStep } from "./Approvals";
 
 const FIELD_ORDER = [
   "client_sector", "campaign_objective", "audience", "geo", "deliverables", "budget", "timeline",
@@ -20,14 +21,18 @@ export default function Detail({ me }: { me?: User }) {
   const [audit, setAudit] = useState<AuditEvent[] | null>(null);
   const [loadError, setLoadError] = useState<unknown>(null);
   const [actionError, setActionError] = useState<ApiError | null>(null);
-  const [busy, setBusy] = useState<"extract" | "quote" | "edit" | null>(null);
+  const [busy, setBusy] = useState<"extract" | "quote" | "edit" | "review" | null>(null);
+  const [notes, setNotes] = useState<NotificationRow[] | null>(null);
   const [viewRev, setViewRev] = useState<number | null>(null);
   const [activeField, setActiveField] = useState<string | null>(null);
 
   const isAnalyst = me?.role === "analyst";
 
   const refreshAudit = useCallback(() => {
-    if (me && CAN_READ_AUDIT.has(me.role)) api.audit(id).then(setAudit).catch(() => setAudit(null));
+    if (me && CAN_READ_AUDIT.has(me.role)) {
+      api.audit(id).then(setAudit).catch(() => setAudit(null));
+      api.notifications(id).then(setNotes).catch(() => setNotes(null));
+    }
   }, [id, me]);
 
   const load = useCallback(() => {
@@ -39,7 +44,9 @@ export default function Detail({ me }: { me?: User }) {
   }, [id, refreshAudit]);
   useEffect(load, [load]);
 
-  const run = async (kind: "extract" | "quote" | "edit", fn: () => Promise<BriefDetail | void>) => {
+  const run = async (
+    kind: "extract" | "quote" | "edit" | "review", fn: () => Promise<BriefDetail | void>,
+  ) => {
     setBusy(kind);
     setActionError(null);
     try {
@@ -63,6 +70,8 @@ export default function Detail({ me }: { me?: User }) {
   const shown: Revision | null =
     (viewRev && brief.revisions.find((r) => r.revision === viewRev)) || latest;
   const isLatest = !!shown && shown.id === latest?.id;
+  const locked = brief.status === "finalized";
+  const canChange = isAnalyst && !locked;
   const activeQuote = activeField && shown ? shown.fields[activeField]?.source_quote ?? null : null;
 
   return (
@@ -99,7 +108,8 @@ export default function Detail({ me }: { me?: User }) {
         <section className="panel card" aria-labelledby="fields-h">
           <div className="card-head">
             <h2 id="fields-h">Structured requirements</h2>
-            {isAnalyst && (
+            {locked && <span className="chip chip-muted">Locked — final proposal sent</span>}
+            {canChange && (
               <button className={`btn btn-sm ${latest ? "" : "btn-primary"}`} disabled={busy !== null}
                 onClick={() => run("extract", () => api.extract(id))}>
                 {busy === "extract" ? "Extracting…" : latest ? "Re-run extraction" : "Run extraction"}
@@ -139,7 +149,7 @@ export default function Detail({ me }: { me?: User }) {
                     issue={shown.validation.issues.find((i) => i.field === name)?.message}
                     schema={schema} card={card}
                     active={activeField === name} onActivate={setActiveField}
-                    editable={isAnalyst && isLatest} busy={busy !== null}
+                    editable={canChange && isLatest} busy={busy !== null}
                     onSave={(value) => run("edit", () => api.editFields(id, { [name]: value }))} />
                 ))}
               </div>
@@ -150,8 +160,13 @@ export default function Detail({ me }: { me?: User }) {
         <aside className="panel card" aria-labelledby="insp-h">
           <div className="card-head"><h2 id="insp-h">Decision inspector</h2></div>
           <ValidationSection rev={latest} />
-          <PricingSection brief={brief} card={card} canPrice={isAnalyst} busy={busy}
+          <PricingSection brief={brief} card={card} canPrice={canChange} busy={busy}
             onPrice={(d) => run("quote", async () => { await api.quote(id, d); })} />
+          {brief.latest_quote && (
+            <ReviewSection brief={brief} me={me} busy={busy !== null}
+              act={(fn) => run("review", async () => { await fn(); })} />
+          )}
+          {notes && notes.length > 0 && <NotificationsSection rows={notes} />}
           {audit && <AuditSection events={audit} />}
         </aside>
       </div>
@@ -379,12 +394,14 @@ function PricingSection({ brief, card, canPrice, busy, onPrice }: {
           </button>
         </form>
       )}
-      <span id="disc-hint" className={discountError ? "err-text" : "hint"}>
-        {discountError ?? (overThreshold
-          ? `Above ${card.discount_review_threshold_pct}% — a manager must approve.`
-          : `Rate card ${card.version}. Above ${card.discount_review_threshold_pct}% needs manager approval.`)}
-      </span>
-      {!ready && <p className="hint">Available once all required fields are valid.</p>}
+      {canPrice && (
+        <span id="disc-hint" className={discountError ? "err-text" : "hint"}>
+          {discountError ?? (overThreshold
+            ? `Above ${card.discount_review_threshold_pct}% — a manager must approve.`
+            : `Rate card ${card.version}. Above ${card.discount_review_threshold_pct}% needs manager approval.`)}
+        </span>
+      )}
+      {canPrice && !ready && <p className="hint">Available once all required fields are valid.</p>}
 
       {stale && (
         <div className="banner banner-warn" role="status">Requirements changed after this quote (priced on r{revNo}). Recalculate before using it.</div>
@@ -424,12 +441,138 @@ function PricingSection({ brief, card, canPrice, busy, onPrice }: {
               ))}
             </ul>
           ) : <span className="chip chip-ok">Within policy — no review flags</span>}
-          <span className={`chip ${q.status === "needs_review" ? "chip-warn" : "chip-info"}`}>
-            Quote status: {q.status === "needs_review" ? "needs review" : "draft"}
-          </span>
-          <p className="hint">Approval and export arrive in Phase 4.</p>
         </>
       ) : ready ? <p className="muted">No quote yet.</p> : null}
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------ review & decision
+
+function ReviewSection({ brief, me, busy, act }: {
+  brief: BriefDetail; me?: User; busy: boolean; act: (fn: () => Promise<unknown>) => Promise<boolean>;
+}) {
+  const q = brief.latest_quote!;
+  const [reason, setReason] = useState("");
+  const [note, setNote] = useState("");
+  // One key per finalize intent: a double-click or network retry replays instead of duplicating.
+  const finalizeKey = useRef(crypto.randomUUID());
+  const step = nextStep(q);
+  const [cls, label] = QUOTE_STATUS[q.status];
+  const role = me?.role;
+  const needsReason = q.pricing.requires_manager_review;
+  const fe = q.review.feasibility;
+  const ap = q.review.approval;
+  const fin = q.review.final;
+  const ownQuote = me && (me.id === q.created_by || me.id === brief.created_by);
+  const opsBlocks = q.pricing.requires_operations_review && (!fe || !fe.feasible);
+
+  return (
+    <div className="section">
+      <h3>Review & decision · quote r{q.revision}</h3>
+      <span className={`chip ${cls}`}>{label}</span>
+      {step && <p className="hint">Next: {step.text}.</p>}
+
+      {fe && (
+        <div className={`banner ${fe.feasible ? "banner-info" : "banner-bad"}`}>
+          <span><strong>Operations: {fe.feasible ? "feasible" : "not feasible"}</strong> — “{fe.note}” <span className="hint">({fe.actor}, {dateTime(fe.at)})</span></span>
+        </div>
+      )}
+
+      {/* operations feasibility (A-BR-08) */}
+      {role === "operations" && q.status === "pending_approval" && q.pricing.requires_operations_review && (
+        <form className="editor" onSubmit={(e) => e.preventDefault()}>
+          <label className="field"><span>Feasibility note</span>
+            <textarea className="textarea" style={{ minHeight: 80 }} value={note} onChange={(e) => setNote(e.target.value)}
+              placeholder="Capacity, team, timeline risks…" />
+          </label>
+          <div className="editor-row">
+            <button type="button" className="btn btn-primary btn-sm" disabled={busy || note.trim().length < 5}
+              onClick={() => act(() => api.feasibility(q.id, true, note)).then((ok) => ok && setNote(""))}>Feasible</button>
+            <button type="button" className="btn btn-sm" disabled={busy || note.trim().length < 5}
+              onClick={() => act(() => api.feasibility(q.id, false, note)).then((ok) => ok && setNote(""))}>Not feasible</button>
+          </div>
+        </form>
+      )}
+
+      {/* manager decision (A-FR-08) */}
+      {role === "manager" && q.status === "pending_approval" && (
+        ownQuote ? (
+          <div className="banner banner-warn">You created this request, so another manager must decide.</div>
+        ) : (
+          <form className="editor" onSubmit={(e) => e.preventDefault()}>
+            <label className="field"><span>Reason {needsReason ? "(required — quote has policy flags)" : "(required to reject)"}</span>
+              <textarea className="textarea" style={{ minHeight: 80 }} value={reason} onChange={(e) => setReason(e.target.value)}
+                aria-describedby="reason-hint" />
+            </label>
+            <span id="reason-hint" className="hint">Your decision applies to quote r{q.revision} exactly. Any later change voids it.</span>
+            {opsBlocks && <span className="err-text">⚠ Approval is blocked until operations confirms feasibility.</span>}
+            <div className="editor-row">
+              <button type="button" className="btn btn-primary btn-sm"
+                disabled={busy || opsBlocks || (needsReason && reason.trim().length < 5)}
+                onClick={() => act(() => api.decide(q.id, "approve", reason, q.revision))}>Approve</button>
+              <button type="button" className="btn btn-sm" disabled={busy || reason.trim().length < 5}
+                onClick={() => act(() => api.decide(q.id, "reject", reason, q.revision))}>Reject</button>
+            </div>
+          </form>
+        )
+      )}
+
+      {ap && (
+        <p className="hint">
+          {ap.decision === "approve" ? "Approved" : "Rejected"} by {ap.actor} · {dateTime(ap.at)}
+          {ap.reason && <> — “{ap.reason}”</>}
+        </p>
+      )}
+      {q.status === "rejected" && role === "analyst" && (
+        <p className="hint">Correct the requirements or recalculate with a different discount to submit a new revision.</p>
+      )}
+
+      {/* finalize (A-FR-09) */}
+      {q.status === "approved" && (role === "analyst" || role === "manager") && (
+        <button className="btn btn-primary" disabled={busy}
+          onClick={() => act(() => api.finalize(q.id, finalizeKey.current))}>
+          {busy ? "Finalizing…" : "Finalize proposal"}
+        </button>
+      )}
+      {fin && (
+        <div className="banner banner-info" role="status">
+          <span>Final proposal issued by {fin.finalized_by} · {dateTime(fin.at)}<br />
+            <span className="mono">sha256 {fin.document_sha256.slice(0, 16)}…</span></span>
+        </div>
+      )}
+      <div>
+        <a className="btn btn-ghost btn-sm" href={api.proposalUrl(q.id)} target="_blank" rel="noopener">
+          {fin ? "Open final proposal" : "Preview draft proposal"} ↗
+        </a>
+      </div>
+
+      {brief.quote_history.length > 1 && (
+        <details>
+          <summary className="hint">Earlier quote revisions ({brief.quote_history.length - 1})</summary>
+          <ul className="issues" style={{ marginTop: 8 }}>
+            {brief.quote_history.slice(1).map((h) => (
+              <li key={h.id}><span className={`chip ${QUOTE_STATUS[h.status][0]}`}>{QUOTE_STATUS[h.status][1]}</span> r{h.revision} · {money(h.net_total)}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </div>
+  );
+}
+
+function NotificationsSection({ rows }: { rows: NotificationRow[] }) {
+  return (
+    <div className="section">
+      <h3>Notifications (mock)</h3>
+      <ul className="issues">
+        {rows.map((n) => (
+          <li key={n.id}>
+            <span className={`chip ${n.status === "sent" ? "chip-ok" : n.status === "failed" ? "chip-bad" : "chip-warn"}`}>{humanize(n.status)}</span>
+            <span>{n.channel === "email" ? "Email to sales" : "CRM update"} · {n.attempts} attempt(s){n.last_error && <span className="err-text"> — {n.last_error}</span>}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -443,6 +586,13 @@ function AuditSection({ events }: { events: AuditEvent[] }) {
       case "requirements.edited": return `Fields corrected (r${a.revision}): ${Object.keys(a.changes ?? {}).map((k) => FIELD_LABEL[k] ?? k).join(", ")}`;
       case "brief.status_changed": return `Status → ${humanize(a.status)}`;
       case "extraction.failed": return `Extraction failed: ${a.message}`;
+      case "quote.priced": return `Quote r${a.revision} priced: ${money(a.net_total)} on ${a.rate_card_version}`;
+      case "quote.superseded": return `Quote r${e.before?.revision} superseded (${a.reason})`;
+      case "quote.feasibility_noted": return `Feasibility: ${a.feasible ? "feasible" : "not feasible"} — ${a.note}`;
+      case "quote.approved": return `Quote r${a.revision} approved${a.reason ? ` — ${a.reason}` : ""}`;
+      case "quote.rejected": return `Quote r${a.revision} rejected — ${a.reason}`;
+      case "quote.decision_blocked": return "Decision blocked: self-approval";
+      case "quote.finalized": return `Final proposal issued (sha256 ${String(a.document_sha256).slice(0, 10)}…)`;
       default: return humanize(e.action.replace(".", " "));
     }
   };

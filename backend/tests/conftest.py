@@ -12,9 +12,11 @@ from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
+from app.auth import issue_token
 from app.db import SessionLocal, engine
 from app.main import app
 from app.seed import seed
+from app.services import outbox
 
 HERE = os.path.dirname(__file__)
 
@@ -34,10 +36,12 @@ def clean_db(migrated_db):
     with engine.begin() as conn:
         conn.execute(
             text(
-                "TRUNCATE audit_events, quotes, requirement_revisions, briefs, rate_cards, users "
+                "TRUNCATE notifications, final_proposals, approvals, feasibility_notes, "
+                "audit_events, quotes, requirement_revisions, briefs, rate_cards, users "
                 "RESTART IDENTITY CASCADE"
             )
         )
+    outbox.set_notifier(outbox.MockNotifier())
     with SessionLocal() as s:
         seed(s)
     yield
@@ -49,4 +53,5 @@ def client():
 
 
 def as_user(user_id: str, **extra) -> dict[str, str]:
-    return {"X-User": user_id, **extra}
+    """Headers carrying a server-signed session token for a seeded demo user."""
+    return {"Authorization": f"Bearer {issue_token(user_id)}", **extra}
