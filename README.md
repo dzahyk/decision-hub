@@ -6,7 +6,8 @@ humans decide outcomes. Spec: *Project 01 Master Specification, Draft v1.1*.
 
 **Status: Phase 4 done** — intake → extraction → validation → correction → pricing →
 operations feasibility → manager approval → exactly-once final proposal → mock email/CRM → audit.
-Real LLM provider (Phase 3) and dashboard/deployment (Phase 5) are next (see `docs/PLAN.md`).
+Phase 3 adds the Claude extraction adapter, PII redaction, cost guards and a 60-case evaluation set.
+Dashboard and deployment (Phase 5) are next (see `docs/PLAN.md`).
 
 All data is synthetic. Rate card numbers are portfolio fixtures, not real prices.
 
@@ -36,7 +37,12 @@ set `DH_DEMO_MODE=false` and `DH_SESSION_SECRET` for anything holding real data.
 | `DH_DATABASE_URL` | `postgresql+psycopg:///decision_hub` | |
 | `DH_DEMO_MODE` | `true` | Password-less persona sign-in for the demo |
 | `DH_SESSION_SECRET` | random per process | Set it, or sessions end on every restart |
-| `DH_LLM_PROVIDER` | `mock` | `mock` is a labelled regex parser, not an LLM. Real providers arrive in Phase 3 and read their API key from the environment only. |
+| `DH_LLM_PROVIDER` | `mock` | `mock` (labelled regex parser, free) or `anthropic` (Claude). |
+| `ANTHROPIC_API_KEY` | — | Read by the Anthropic SDK only; never stored in this repo or the database. |
+| `DH_LLM_MODEL` | `claude-opus-5-5` | |
+| `DH_LLM_EFFORT` | `medium` | `low`…`max`; tune with the eval set |
+| `DH_LLM_MAX_TOKENS` / `DH_LLM_TIMEOUT_S` | `16000` / `90` | Per-call output cap and timeout |
+| `DH_LLM_DAILY_BUDGET_USD` | `5.0` | Paid extraction stops for the day at this spend (0 = off) |
 
 ## Tests
 
@@ -48,6 +54,19 @@ cd frontend && pnpm typecheck
 64 backend tests: pricing oracle (hand-computed), validation, extractor, sessions, approvals,
 concurrent finalize, outbox fault injection and rate card replay — named after the spec's UAT IDs,
 run against a real Postgres test DB through the real migrations.
+
+## Evaluation (A-FR-15)
+
+```bash
+cd backend
+uv run python -m app.eval.run                                # free, mock provider
+uv run python -m app.eval.run --provider anthropic           # prints a cost estimate, then stops
+uv run python -m app.eval.run --provider anthropic --yes     # real run (~$3 for 60 cases)
+```
+
+60 synthetic, labelled briefs in `backend/eval/cases.jsonl` (regenerate with `eval/make_cases.py`).
+Reports go to `backend/eval/reports/` with model, prompt version, effort, commit, per-field precision/recall,
+pricing mismatch rate, PII leak count, latency, tokens, cost and an error list.
 
 ## Docs
 - `docs/PLAN.md` — phases, environment constraints, exit gates

@@ -69,6 +69,7 @@ class RequirementRevision(Base):
     model_version: Mapped[str | None] = mapped_column(String(64))
     prompt_version: Mapped[str | None] = mapped_column(String(32))
     latency_ms: Mapped[int | None] = mapped_column(Integer)
+    llm_call_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("llm_calls.id"))
     created_by: Mapped[str] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
@@ -183,3 +184,27 @@ class Notification(Base):
     last_error: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class LlmCall(Base):
+    """One extraction attempt against a provider, successful or not (A-NFR-06, A-NFR-09)."""
+
+    __tablename__ = "llm_calls"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    brief_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("briefs.id"), index=True)
+    provider: Mapped[str] = mapped_column(String(32))
+    model: Mapped[str | None] = mapped_column(String(64))
+    prompt_version: Mapped[str | None] = mapped_column(String(32))
+    status: Mapped[str] = mapped_column(String(16))  # ok|error
+    error_class: Mapped[str | None] = mapped_column(String(32))
+    latency_ms: Mapped[int] = mapped_column(Integer)
+    input_tokens: Mapped[int | None] = mapped_column(Integer)
+    output_tokens: Mapped[int | None] = mapped_column(Integer)
+    cache_read_tokens: Mapped[int | None] = mapped_column(Integer)
+    cost_usd: Mapped[Decimal | None] = mapped_column(Numeric(12, 6))
+    pii_redacted: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)  # counts only
+    provider_request_id: Mapped[str | None] = mapped_column(String(128))
+    request_id: Mapped[str | None] = mapped_column(String(64))
+    created_by: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)

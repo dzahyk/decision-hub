@@ -9,12 +9,16 @@ from __future__ import annotations
 import hashlib
 import time
 import uuid
+from datetime import UTC, datetime
+from datetime import time as dtime
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.domain.pricing import PricingInputError, price_requirement
 from app.domain.requirement import (
     REQUIRED_FIELDS,
@@ -22,8 +26,18 @@ from app.domain.requirement import (
     FieldValue,
     validate_requirement,
 )
-from app.llm.base import ExtractionError, ExtractionProvider
-from app.models import AuditEvent, Brief, Quote, RateCard, RequirementRevision, User, utcnow
+from app.llm.base import ExtractionError, ExtractionOutput, ExtractionProvider
+from app.llm.redact import redact, restore
+from app.models import (
+    AuditEvent,
+    Brief,
+    LlmCall,
+    Quote,
+    RateCard,
+    RequirementRevision,
+    User,
+    utcnow,
+)
 
 # Quote states in which an approval is still "live" and must be invalidated by any change.
 OPEN_QUOTE_STATES = ("pending_approval", "approved")
@@ -219,6 +233,75 @@ def supersede_open_quotes(
     return list(open_quotes)
 
 
+# ------------------------------------------------------------------ LLM guards & records
+
+
+def _check_daily_budget(db: Session, provider: ExtractionProvider) -> None:
+    """A-NFR-09: stop paid extraction once today's spend reaches the configured cap."""
+    cap = get_settings().llm_daily_budget_usd
+    if provider.name == "mock" or cap <= 0:
+        return
+    since = datetime.combine(utcnow().date(), dtime.min, tzinfo=UTC)
+    spent = db.scalar(
+        select(func.coalesce(func.sum(LlmCall.cost_usd), 0)).where(LlmCall.at >= since)
+    )
+    if Decimal(spent) >= Decimal(str(cap)):
+        raise WorkflowError(
+            "llm_budget_exhausted",
+            f"today's extraction budget (${cap:.2f}) is used up; fill the fields manually or "
+            "raise DH_LLM_DAILY_BUDGET_USD",
+            http_status=429,
+        )
+
+
+def _record_call(
+    db: Session, *, brief: Brief, user: User, provider: ExtractionProvider,
+    out: ExtractionOutput | None, error: ExtractionError | None, latency_ms: int,
+    pii: dict[str, int], request_id: str | None,
+) -> LlmCall:
+    meta = error.meta if error else {}
+    call = LlmCall(
+        brief_id=brief.id,
+        provider=provider.name,
+        model=out.model_version if out else getattr(provider, "model", None),
+        prompt_version=out.prompt_version if out else None,
+        status="ok" if out else "error",
+        error_class=error.error_class if error else None,
+        latency_ms=latency_ms,
+        input_tokens=out.input_tokens if out else meta.get("input_tokens"),
+        output_tokens=out.output_tokens if out else meta.get("output_tokens"),
+        cache_read_tokens=out.cache_read_tokens if out else meta.get("cache_read_tokens"),
+        cost_usd=out.cost_usd if out else meta.get("cost_usd"),
+        pii_redacted=pii,
+        provider_request_id=out.provider_request_id if out else meta.get("provider_request_id"),
+        request_id=request_id,
+        created_by=user.id,
+    )
+    db.add(call)
+    db.flush()
+    return call
+
+
+def _restore_and_verify(fv: FieldValue, mapping: dict[str, str], raw_text: str) -> FieldValue:
+    """Put redacted values back, then re-check provenance against the *raw* brief for every
+    provider: a quote that isn't in the brief is dropped and the field marked for review."""
+    fv = FieldValue(
+        value=restore(fv.value, mapping),
+        status=fv.status,
+        source_quote=restore(fv.source_quote, mapping),
+        note=restore(fv.note, mapping),
+    )
+    if fv.source_quote and fv.source_quote not in raw_text:
+        note = "quote not found in the brief — verify this value"
+        return FieldValue(
+            value=fv.value,
+            status="inferred" if fv.value is not None else "missing",
+            source_quote=None,
+            note=f"{fv.note} · {note}" if fv.note else note,
+        )
+    return fv
+
+
 # ------------------------------------------------------------------ revisions (A-FR-03/04/05)
 
 
@@ -231,12 +314,20 @@ def run_extraction(
     request_id: str | None = None,
 ) -> RequirementRevision:
     """Ask the provider for field suggestions, validate them, store a new revision.
-    On provider failure nothing is invented: the error is audited and re-raised."""
+
+    Steps: spend guard -> PII redaction -> provider call -> restore placeholders locally ->
+    provenance re-check against the raw brief -> validation. Every call, failed or not, is
+    recorded in llm_calls. On failure nothing is invented: the error is audited and raised."""
     ensure_not_finalized(brief)
+    _check_daily_budget(db, provider)
+    red = redact(brief.raw_text)
     started = time.perf_counter()
     try:
-        out = provider.extract(brief.raw_text, received_on=brief.received_at.date())
+        out = provider.extract(red.text, received_on=brief.received_at.date())
     except ExtractionError as exc:
+        latency_ms = int((time.perf_counter() - started) * 1000)
+        _record_call(db, brief=brief, user=user, provider=provider, out=None, error=exc,
+                     latency_ms=latency_ms, pii=red.counts, request_id=request_id)
         audit(
             db,
             actor=user.id,
@@ -248,12 +339,18 @@ def run_extraction(
             request_id=request_id,
         )
         db.commit()
-        raise WorkflowError("extraction_failed", str(exc), http_status=502) from exc
+        status = 503 if exc.error_class in ("circuit_open", "rate_limited") else 502
+        raise WorkflowError("extraction_failed", str(exc), http_status=status) from exc
     latency_ms = int((time.perf_counter() - started) * 1000)
 
     brief = lock_brief(db, brief.id)
     ensure_not_finalized(brief)
-    fields = {name: out.fields.get(name, FieldValue()) for name in REQUIRED_FIELDS}
+    fields = {
+        name: _restore_and_verify(out.fields.get(name, FieldValue()), red.mapping, brief.raw_text)
+        for name in REQUIRED_FIELDS
+    }
+    call = _record_call(db, brief=brief, user=user, provider=provider, out=out, error=None,
+                        latency_ms=latency_ms, pii=red.counts, request_id=request_id)
     validation = validate_requirement(fields)
     rev = RequirementRevision(
         brief_id=brief.id,
@@ -266,6 +363,7 @@ def run_extraction(
         model_version=out.model_version,
         prompt_version=out.prompt_version,
         latency_ms=latency_ms,
+        llm_call_id=call.id,
         created_by=user.id,
     )
     db.add(rev)
@@ -283,6 +381,8 @@ def run_extraction(
             "model_version": out.model_version,
             "validation": validation.status,
             "missing": [i.field for i in validation.issues if i.code == "missing"],
+            "pii_redacted": red.counts,
+            "cost_usd": str(out.cost_usd) if out.cost_usd is not None else None,
         },
         request_id=request_id,
     )

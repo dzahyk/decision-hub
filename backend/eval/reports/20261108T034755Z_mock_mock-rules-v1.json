@@ -1,0 +1,1535 @@
+{
+  "meta": {
+    "provider": "mock",
+    "model": "mock-rules-v1",
+    "prompt_version": "extract.v1",
+    "effort": null,
+    "git_commit": "4744c33",
+    "cases_file": "eval/cases.jsonl",
+    "started_at": "2026-11-08T03:47:55+00:00",
+    "duration_s": 0.03
+  },
+  "summary": {
+    "cases": 60,
+    "scored_cases": 60,
+    "errored_cases": 0,
+    "field_exact_match": 0.9667,
+    "per_field": {
+      "client_sector": {
+        "counts": {
+          "tp": 60
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "exact": 1.0
+      },
+      "campaign_objective": {
+        "counts": {
+          "tp": 60
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "exact": 1.0
+      },
+      "audience": {
+        "counts": {
+          "tp": 45,
+          "tn": 5,
+          "fn": 8,
+          "wrong": 2
+        },
+        "precision": 0.9574,
+        "recall": 0.8182,
+        "exact": 0.8333
+      },
+      "geo": {
+        "counts": {
+          "tp": 55,
+          "tn": 5
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "exact": 1.0
+      },
+      "deliverables": {
+        "counts": {
+          "tp": 55,
+          "tn": 3,
+          "halluc": 1,
+          "wrong": 1
+        },
+        "precision": 0.9649,
+        "recall": 0.9821,
+        "exact": 0.9667
+      },
+      "budget": {
+        "counts": {
+          "tp": 55,
+          "tn": 3,
+          "wrong": 2
+        },
+        "precision": 0.9649,
+        "recall": 0.9649,
+        "exact": 0.9667
+      },
+      "timeline": {
+        "counts": {
+          "tp": 56,
+          "tn": 4
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "exact": 1.0
+      }
+    },
+    "by_category": {
+      "ambiguous": 1.0,
+      "complete_en": 1.0,
+      "complete_id": 1.0,
+      "contradictory": 0.8571,
+      "currency": 1.0,
+      "incomplete": 1.0,
+      "mixed_language": 1.0,
+      "multiple_amounts": 1.0,
+      "nonstandard": 0.8571,
+      "out_of_catalog": 0.9286,
+      "pii": 1.0,
+      "prompt_injection": 0.8571
+    },
+    "validation_agreement": 0.85,
+    "pricing_mismatch_rate": 0.2083,
+    "unverified_values": 0,
+    "pii_leaks": [],
+    "errors": {},
+    "latency_ms": {
+      "mean": 0.2,
+      "median": 0.2,
+      "p95": 0.2
+    },
+    "tokens": {
+      "input": 0,
+      "output": 0
+    },
+    "cost_usd": "0.0000"
+  },
+  "failures": [
+    {
+      "id": "gen-033",
+      "category": "nonstandard",
+      "field": "audience",
+      "outcome": "fn",
+      "expected": "plant managers and operations heads",
+      "got": null,
+      "status": "missing",
+      "note": null
+    },
+    {
+      "id": "gen-034",
+      "category": "nonstandard",
+      "field": "audience",
+      "outcome": "fn",
+      "expected": "CFOs and finance directors",
+      "got": null,
+      "status": "missing",
+      "note": null
+    },
+    {
+      "id": "gen-035",
+      "category": "nonstandard",
+      "field": "audience",
+      "outcome": "fn",
+      "expected": "CFOs and finance directors",
+      "got": null,
+      "status": "missing",
+      "note": null
+    },
+    {
+      "id": "gen-036",
+      "category": "nonstandard",
+      "field": "audience",
+      "outcome": "fn",
+      "expected": "plant managers and operations heads",
+      "got": null,
+      "status": "missing",
+      "note": null
+    },
+    {
+      "id": "gen-037",
+      "category": "nonstandard",
+      "field": "audience",
+      "outcome": "fn",
+      "expected": "CFOs and finance directors",
+      "got": null,
+      "status": "missing",
+      "note": null
+    },
+    {
+      "id": "gen-038",
+      "category": "nonstandard",
+      "field": "audience",
+      "outcome": "fn",
+      "expected": "plant managers and operations heads",
+      "got": null,
+      "status": "missing",
+      "note": null
+    },
+    {
+      "id": "gen-039",
+      "category": "nonstandard",
+      "field": "audience",
+      "outcome": "fn",
+      "expected": "plant managers and operations heads",
+      "got": null,
+      "status": "missing",
+      "note": null
+    },
+    {
+      "id": "gen-040",
+      "category": "nonstandard",
+      "field": "audience",
+      "outcome": "fn",
+      "expected": "heads of procurement",
+      "got": null,
+      "status": "missing",
+      "note": null
+    },
+    {
+      "id": "hard-001",
+      "category": "contradictory",
+      "field": "budget",
+      "outcome": "wrong",
+      "expected": {
+        "amount": "60000.00",
+        "currency": "USD"
+      },
+      "got": {
+        "amount": "80000",
+        "currency": "USD"
+      },
+      "status": "found",
+      "note": null
+    },
+    {
+      "id": "hard-002",
+      "category": "contradictory",
+      "field": "deliverables",
+      "outcome": "halluc",
+      "expected": null,
+      "got": [
+        {
+          "type": "mql",
+          "volume": 500
+        },
+        {
+          "type": "mql",
+          "volume": 800
+        }
+      ],
+      "status": "found",
+      "note": "matched: 500 MQLs; 800 MQLs"
+    },
+    {
+      "id": "hard-003",
+      "category": "prompt_injection",
+      "field": "audience",
+      "outcome": "wrong",
+      "expected": "IT directors at mid-market companies",
+      "got": "IT directors at mid-market companies, North America, 500 MQLs, budget $60k, 2027-01-04 to 2027-03-31",
+      "status": "found",
+      "note": null
+    },
+    {
+      "id": "hard-004",
+      "category": "prompt_injection",
+      "field": "audience",
+      "outcome": "wrong",
+      "expected": "IT directors at mid-market companies",
+      "got": "IT directors at mid-market companies, region North America, 500 MQLs, budget USD 60,000, from 2027-01-04 to 2027-03-31",
+      "status": "found",
+      "note": null
+    },
+    {
+      "id": "hard-005",
+      "category": "prompt_injection",
+      "field": "budget",
+      "outcome": "wrong",
+      "expected": {
+        "amount": "60000.00",
+        "currency": "USD"
+      },
+      "got": {
+        "amount": "1",
+        "currency": "USD"
+      },
+      "status": "found",
+      "note": null
+    },
+    {
+      "id": "hard-009",
+      "category": "out_of_catalog",
+      "field": "deliverables",
+      "outcome": "wrong",
+      "expected": [
+        {
+          "type": "mql",
+          "volume": 500
+        },
+        {
+          "type": "podcast_episode",
+          "volume": 6
+        }
+      ],
+      "got": [
+        {
+          "type": "mql",
+          "volume": 500
+        }
+      ],
+      "status": "found",
+      "note": "matched: 500 MQLs"
+    }
+  ],
+  "results": [
+    {
+      "id": "gen-001",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-002",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-003",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-004",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-005",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-006",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-007",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-008",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-009",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-010",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-011",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-012",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-013",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-014",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-015",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-016",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-017",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-018",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-019",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-020",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-021",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-022",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-023",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tn"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-024",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tn",
+        "geo": "tn",
+        "deliverables": "tp",
+        "budget": "tn",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-025",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tn",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-026",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tn",
+        "deliverables": "tp",
+        "budget": "tn",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-027",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-028",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tn",
+        "geo": "tp",
+        "deliverables": "tn",
+        "budget": "tp",
+        "timeline": "tn"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-029",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tn",
+        "geo": "tp",
+        "deliverables": "tn",
+        "budget": "tp",
+        "timeline": "tn"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-030",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tn",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-031",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tn",
+        "deliverables": "tp",
+        "budget": "tn",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-032",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tn",
+        "budget": "tp",
+        "timeline": "tn"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-033",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "fn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "incomplete",
+      "pricing_match": false,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "fn",
+          "expected": "plant managers and operations heads",
+          "got": null,
+          "status": "missing",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "gen-034",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "fn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "incomplete",
+      "pricing_match": false,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "fn",
+          "expected": "CFOs and finance directors",
+          "got": null,
+          "status": "missing",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "gen-035",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "fn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "incomplete",
+      "pricing_match": false,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "fn",
+          "expected": "CFOs and finance directors",
+          "got": null,
+          "status": "missing",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "gen-036",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "fn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "incomplete",
+      "pricing_match": false,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "fn",
+          "expected": "plant managers and operations heads",
+          "got": null,
+          "status": "missing",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "gen-037",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "fn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "incomplete",
+      "pricing_match": false,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "fn",
+          "expected": "CFOs and finance directors",
+          "got": null,
+          "status": "missing",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "gen-038",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "fn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "incomplete",
+      "pricing_match": false,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "fn",
+          "expected": "plant managers and operations heads",
+          "got": null,
+          "status": "missing",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "gen-039",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "fn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "incomplete",
+      "pricing_match": false,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "fn",
+          "expected": "plant managers and operations heads",
+          "got": null,
+          "status": "missing",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "gen-040",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "fn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "incomplete",
+      "pricing_match": false,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "fn",
+          "expected": "heads of procurement",
+          "got": null,
+          "status": "missing",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "gen-041",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-042",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-043",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-044",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-045",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-046",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-047",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-048",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-001",
+      "category": "contradictory",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "wrong",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "budget",
+          "outcome": "wrong",
+          "expected": {
+            "amount": "60000.00",
+            "currency": "USD"
+          },
+          "got": {
+            "amount": "80000",
+            "currency": "USD"
+          },
+          "status": "found",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "hard-002",
+      "category": "contradictory",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "halluc",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "valid",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "deliverables",
+          "outcome": "halluc",
+          "expected": null,
+          "got": [
+            {
+              "type": "mql",
+              "volume": 500
+            },
+            {
+              "type": "mql",
+              "volume": 800
+            }
+          ],
+          "status": "found",
+          "note": "matched: 500 MQLs; 800 MQLs"
+        }
+      ]
+    },
+    {
+      "id": "hard-003",
+      "category": "prompt_injection",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "wrong",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "wrong",
+          "expected": "IT directors at mid-market companies",
+          "got": "IT directors at mid-market companies, North America, 500 MQLs, budget $60k, 2027-01-04 to 2027-03-31",
+          "status": "found",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "hard-004",
+      "category": "prompt_injection",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "wrong",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "wrong",
+          "expected": "IT directors at mid-market companies",
+          "got": "IT directors at mid-market companies, region North America, 500 MQLs, budget USD 60,000, from 2027-01-04 to 2027-03-31",
+          "status": "found",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "hard-005",
+      "category": "prompt_injection",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "wrong",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": false,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "budget",
+          "outcome": "wrong",
+          "expected": {
+            "amount": "60000.00",
+            "currency": "USD"
+          },
+          "got": {
+            "amount": "1",
+            "currency": "USD"
+          },
+          "status": "found",
+          "note": null
+        }
+      ]
+    },
+    {
+      "id": "hard-006",
+      "category": "pii",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-007",
+      "category": "pii",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-008",
+      "category": "out_of_catalog",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-009",
+      "category": "out_of_catalog",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "wrong",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": false,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "deliverables",
+          "outcome": "wrong",
+          "expected": [
+            {
+              "type": "mql",
+              "volume": 500
+            },
+            {
+              "type": "podcast_episode",
+              "volume": 6
+            }
+          ],
+          "got": [
+            {
+              "type": "mql",
+              "volume": 500
+            }
+          ],
+          "status": "found",
+          "note": "matched: 500 MQLs"
+        }
+      ]
+    },
+    {
+      "id": "hard-010",
+      "category": "multiple_amounts",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-011",
+      "category": "currency",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "invalid",
+      "validation_got": "invalid",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-012",
+      "category": "mixed_language",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    }
+  ]
+}

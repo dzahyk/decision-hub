@@ -11,7 +11,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Protocol
+from decimal import Decimal
+from typing import Any, Protocol
 
 from app.domain.requirement import FieldValue
 
@@ -26,15 +27,21 @@ class ExtractionOutput:
     prompt_version: str = PROMPT_VERSION
     input_tokens: int | None = None
     output_tokens: int | None = None
+    cache_read_tokens: int | None = None
+    cost_usd: Decimal | None = None
+    provider_request_id: str | None = None
     warnings: list[str] = field(default_factory=list)
 
 
 class ExtractionError(RuntimeError):
-    """Provider failed (timeout, quota, malformed output). Caller records it; nothing is guessed."""
+    """Provider failed (timeout, quota, malformed output, refusal). Caller records it; nothing
+    is guessed. `meta` carries usage for calls that were billed before failing."""
 
-    def __init__(self, message: str, *, error_class: str = "provider_error"):
+    def __init__(self, message: str, *, error_class: str = "provider_error",
+                 meta: dict[str, Any] | None = None):
         super().__init__(message)
         self.error_class = error_class
+        self.meta = meta or {}
 
 
 class ExtractionProvider(Protocol):
@@ -44,9 +51,13 @@ class ExtractionProvider(Protocol):
 
 
 def get_provider(name: str) -> ExtractionProvider:
-    """Factory. Real providers are added in Phase 3 and only activate when a key is configured."""
+    """Factory. A real provider is only used when explicitly configured (DH_LLM_PROVIDER)."""
     if name == "mock":
         from app.llm.mock import MockRulesExtractor
 
         return MockRulesExtractor()
+    if name == "anthropic":
+        from app.llm.claude import ClaudeExtractor
+
+        return ClaudeExtractor()
     raise ExtractionError(f"LLM provider '{name}' is not configured", error_class="config")

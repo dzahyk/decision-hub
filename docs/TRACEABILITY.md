@@ -1,11 +1,11 @@
-# Requirement traceability — after Phase 4 (2026-11-08)
+# Requirement traceability — after Phases 4 and 3 (2026-11-08)
 
-Evidence = automated test name (64 backend tests) unless marked "browser".
+Evidence = automated test name (97 backend tests) unless marked "browser" or "eval".
 
 | Req | What | Code | Evidence | State |
 |---|---|---|---|---|
 | A-FR-01/02 | Idempotent intake; raw text, source, time, owner | `services/briefs.create_brief` | `test_uat_a01_*` | Done |
-| A-FR-03 | Versioned extraction with provenance | `llm/`, `run_extraction` | `test_uat_a02_*`, extractor tests | Done (mock provider only) |
+| A-FR-03 | Versioned extraction with provenance | `llm/claude.py`, `llm/mock.py`, `run_extraction` | `test_uat_a02_*`, `test_request_shape_is_safe_and_versioned`, `test_unverifiable_quote_is_downgraded_not_trusted` | Done; Claude adapter tested with a fake client, no live run yet |
 | A-FR-04 | Schema validation | `domain/requirement.py` | `test_malformed_values…`, `test_uat_a03_*` | Done |
 | A-FR-05 | Analyst correction; raw untouched | `edit_requirements` | `test_uat_a04_*` | Done |
 | A-FR-06/07 | Deterministic pricing + policy flags | `domain/pricing.py` | pricing oracle tests, `test_uat_a06_*` | Done |
@@ -25,10 +25,13 @@ Evidence = automated test name (64 backend tests) unless marked "browser".
 | A-BR-08 | Off-catalog → operations note before approval | `add_feasibility_note`, `decide` | `test_out_of_catalog…`, `test_not_feasible…` | Done |
 | A-NFR-01 | RBAC; identity from server-signed session | `auth.py`, `current_user`, `require` | `test_client_chosen_identity_header_is_ignored`, `test_forged_and_expired…`, role tests | Done (demo mode on by default) |
 | A-NFR-03 | Idempotency, transactions, retry policy | outbox, locks | see A-FR-11/12, A-BR-07 | Done |
+| A-FR-15 | Repeatable benchmark (≥50 cases) with prompt/model version and error report | `eval/cases.jsonl` (60), `app/eval/` | `test_eval_runs_end_to_end_on_mock`, `eval/reports/*` | Done (mock baseline stored; Claude run pending approval) |
+| A-NFR-02 | PII redacted before any LLM call | `llm/redact.py`, `run_extraction` | `test_redaction_*`, `test_service_redacts_restores_verifies_and_logs`, eval `pii_leaks = 0` | Done (cue-based names only) |
+| A-NFR-06 | Request id, latency, tokens, cost, error class recorded | `models.LlmCall`, `_record_call` | `test_service_redacts…`, `test_failed_call_is_logged…` | Done |
+| A-NFR-09 | Token cap, timeout, circuit breaker, spend guard | `llm/claude.py`, `_check_daily_budget` | `test_circuit_breaker…`, `test_daily_budget_guard…`, `test_sdk_errors_map…` | Done |
 | A-NFR-05 | Pricing replayable | pure engine + stored payload | `test_pricing_is_deterministic`, replay test | Done |
 
-Not started: A-FR-15/16 (eval suite, dashboard — Phase 3/5), A-NFR-02 PII redaction, 04 perf benchmark,
-06 token/cost tracking, 07 CI, 09 LLM cost safety (all need the real LLM or deployment).
+Not started: A-FR-16 dashboard and A-NFR-04 perf benchmark (Phase 5), A-NFR-07 CI (Phase 5).
 
 ## Decisions
 1. **Quote endpoint** is `POST /v1/briefs/{id}/quotes` (create + price) rather than `POST /v1/quotes/{id}/price`;
@@ -48,7 +51,22 @@ Not started: A-FR-15/16 (eval suite, dashboard — Phase 3/5), A-NFR-02 PII reda
 8. **Multi-region pricing** uses the most expensive requested region; **campaign months** = ceil(days/30).
 9. **API port 8010**: port 8000 is used by another local project.
 
+10. **Claude call shape**: `claude-opus-5-5`, adaptive thinking, `output_config.effort` (default `medium`,
+    tune with the eval), JSON-schema structured output, server-side refusal fallback (`fallbacks: "default"`).
+    `base_url` is pinned to `https://api.anthropic.com` so a shell-level `ANTHROPIC_BASE_URL` can't redirect calls.
+11. **Provenance is enforced twice**: in the adapter and again in the service against the raw brief, for every
+    provider. A value whose quote isn't in the brief is shown as "inferred — verify", never "found".
+12. **PII** is replaced by placeholders before any provider call; the mapping stays in the process and only counts
+    are stored. Quotes are restored locally so analysts see the original text.
+13. **Eval scoring**: per-field tp / wrong / missed / invented / correctly-missing, plus pricing agreement through
+    the real pricing engine, so business impact is measured, not just NLP accuracy.
+
 ## Known limits
 - Proposal export is HTML only (no PDF).
 - Rate card publishing has no admin screen yet (API only).
-- Mock extractor is a regex parser, clearly labelled; real LLM arrives in Phase 3.
+- Mock extractor is a regex parser, clearly labelled. The Claude adapter is built and tested offline; no live
+  Claude run has been made yet (needs an API key and approval of the ~$3 eval cost).
+- The 48 generated eval cases share phrasing families, so a rule parser scores high on them (mock: 96.7% field
+  match). The 12 hand-written hard cases are the discriminating part — read results per category.
+- Name redaction only catches names after a contact cue ("Contact:", "PIC:", "cc"); free-floating names are not
+  detected.
