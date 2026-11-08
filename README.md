@@ -7,7 +7,8 @@ humans decide outcomes. Spec: *Project 01 Master Specification, Draft v1.1*.
 **Status: Phase 4 done** — intake → extraction → validation → correction → pricing →
 operations feasibility → manager approval → exactly-once final proposal → mock email/CRM → audit.
 Phase 3 adds the Claude extraction adapter, PII redaction, cost guards and a 60-case evaluation set.
-Dashboard and deployment (Phase 5) are next (see `docs/PLAN.md`).
+Phase 5 adds the Overview dashboard, workflow monitor, Playwright E2E + accessibility tests, CI and a
+single-container deployment. The cinematic landing and case study (Phase 6) are next.
 
 All data is synthetic. Rate card numbers are portfolio fixtures, not real prices.
 
@@ -37,6 +38,8 @@ set `DH_DEMO_MODE=false` and `DH_SESSION_SECRET` for anything holding real data.
 | `DH_DATABASE_URL` | `postgresql+psycopg:///decision_hub` | |
 | `DH_DEMO_MODE` | `true` | Password-less persona sign-in for the demo |
 | `DH_SESSION_SECRET` | random per process | Set it, or sessions end on every restart |
+| `DH_STATIC_DIR` | empty | Path to the built frontend to serve from the API (set in the Docker image) |
+| `DH_COOKIE_SECURE` | `false` | `true` behind HTTPS (Docker image default) |
 | `DH_LLM_PROVIDER` | `mock` | `mock` (labelled regex parser, free) or `anthropic` (Claude). |
 | `ANTHROPIC_API_KEY` | — | Read by the Anthropic SDK only; never stored in this repo or the database. |
 | `DH_LLM_MODEL` | `claude-opus-5-5` | |
@@ -54,6 +57,27 @@ cd frontend && pnpm typecheck
 64 backend tests: pricing oracle (hand-computed), validation, extractor, sessions, approvals,
 concurrent finalize, outbox fault injection and rate card replay — named after the spec's UAT IDs,
 run against a real Postgres test DB through the real migrations.
+
+## End-to-end tests
+
+```bash
+createdb decision_hub_e2e          # once
+cd frontend && npx playwright install chromium   # once
+npx playwright test                # builds, resets the e2e DB, serves on :8031, runs desktop + mobile
+```
+
+Covers the full journey (brief → extraction → quote → approval → final proposal), the incomplete-brief block,
+role restrictions, the dashboard, axe WCAG 2.2 AA checks and phone-width overflow.
+
+## Deploy (one container)
+
+```bash
+docker compose up --build          # app + Postgres on http://localhost:8000
+```
+
+The image builds the frontend, serves it from FastAPI, runs migrations and the idempotent demo seed on start,
+and runs as a non-root user. On a host, set `DH_DATABASE_URL`, a long random `DH_SESSION_SECRET`, and keep
+`DH_COOKIE_SECURE=true` (the image default). Leave `DH_DEMO_MODE=true` only for the public portfolio demo.
 
 ## Evaluation (A-FR-15)
 

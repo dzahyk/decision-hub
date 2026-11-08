@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     # Outbox
     outbox_max_attempts: int = 3
 
+    # Built frontend to serve from the API process (deployment). Empty = don't serve.
+    static_dir: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:

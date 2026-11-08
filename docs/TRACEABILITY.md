@@ -1,6 +1,6 @@
-# Requirement traceability — after Phases 4 and 3 (2026-11-08)
+# Requirement traceability — after Phase 5 (2026-11-08)
 
-Evidence = automated test name (97 backend tests) unless marked "browser" or "eval".
+Evidence = automated test name (101 backend tests + Playwright E2E) unless marked "browser" or "eval".
 
 | Req | What | Code | Evidence | State |
 |---|---|---|---|---|
@@ -29,9 +29,13 @@ Evidence = automated test name (97 backend tests) unless marked "browser" or "ev
 | A-NFR-02 | PII redacted before any LLM call | `llm/redact.py`, `run_extraction` | `test_redaction_*`, `test_service_redacts_restores_verifies_and_logs`, eval `pii_leaks = 0` | Done (cue-based names only) |
 | A-NFR-06 | Request id, latency, tokens, cost, error class recorded | `models.LlmCall`, `_record_call` | `test_service_redacts…`, `test_failed_call_is_logged…` | Done |
 | A-NFR-09 | Token cap, timeout, circuit breaker, spend guard | `llm/claude.py`, `_check_daily_budget` | `test_circuit_breaker…`, `test_daily_budget_guard…`, `test_sdk_errors_map…` | Done |
+| A-FR-16 | Dashboard: lead time, rejection rate, pricing mismatch, API cost | `services/metrics.py`, `/v1/metrics/overview`, `Overview.tsx` | `test_uat_a14_dashboard_reconciles_with_event_logs`, E2E overview test | Done (pricing mismatch comes from the latest eval report) |
+| A-NFR-04 | p95 rule calculation < 1 s on 1,000 fixtures | `scripts/bench_pricing.py` | `test_a_nfr_04_pricing_p95_under_one_second`; local run p95 0.014 ms | Done |
+| A-NFR-07 | CI runs unit / integration / UAT, build fails on test failure | `.github/workflows/ci.yml` | not yet run on GitHub (no remote) | Written, unverified |
+| A-NFR-08 | Accessibility: keyboard, labels, not colour-only, contrast | chips with glyphs, focusable chart marks, table fallbacks | axe (WCAG 2.2 AA) in E2E; Lighthouse a11y 100 | Done for audited pages |
 | A-NFR-05 | Pricing replayable | pure engine + stored payload | `test_pricing_is_deterministic`, replay test | Done |
 
-Not started: A-FR-16 dashboard and A-NFR-04 perf benchmark (Phase 5), A-NFR-07 CI (Phase 5).
+Not started: A-FR-18 property-operations adapter (out of MVP scope by design).
 
 ## Decisions
 1. **Quote endpoint** is `POST /v1/briefs/{id}/quotes` (create + price) rather than `POST /v1/quotes/{id}/price`;
@@ -61,9 +65,17 @@ Not started: A-FR-16 dashboard and A-NFR-04 perf benchmark (Phase 5), A-NFR-07 C
 13. **Eval scoring**: per-field tp / wrong / missed / invented / correctly-missing, plus pricing agreement through
     the real pricing engine, so business impact is measured, not just NLP accuracy.
 
+14. **Deployment unit**: one container; FastAPI serves the built frontend and the API, so cookies are first-party
+    and there is no CORS surface in production. Security headers (CSP, frame-ancestors none, nosniff,
+    referrer policy) on every response; hashed assets cached for a year, API responses `no-store`.
+15. **Web vitals** were measured locally (production build, desktop, no throttling): LCP 87 ms, CLS 0.00;
+    Lighthouse desktop + mobile: Accessibility 100, Best Practices 100, SEO 100. Re-measure on the real host.
+
 ## Known limits
 - Proposal export is HTML only (no PDF).
 - Rate card publishing has no admin screen yet (API only).
+- Docker image and CI workflow are written but not executed here (Docker is not installed on this machine and the
+  repo has no GitHub remote yet).
 - Mock extractor is a regex parser, clearly labelled. The Claude adapter is built and tested offline; no live
   Claude run has been made yet (needs an API key and approval of the ~$3 eval cost).
 - The 48 generated eval cases share phrasing families, so a rule parser scores high on them (mock: 96.7% field

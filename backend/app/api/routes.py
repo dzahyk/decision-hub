@@ -32,7 +32,7 @@ from app.models import (
 )
 from app.services import approvals as appr
 from app.services import briefs as svc
-from app.services import outbox
+from app.services import metrics, outbox
 
 log = logging.getLogger("decision_hub")
 router = APIRouter(prefix="/v1")
@@ -350,6 +350,23 @@ def me(user: CurrentUser):
     return user
 
 
+@router.get("/session")
+def session_status(
+    db: DB,
+    authorization: Annotated[str | None, Header()] = None,
+    dh_session: Annotated[str | None, Cookie()] = None,
+) -> dict[str, Any]:
+    """Who is signed in, without treating 'nobody yet' as an error (first visit)."""
+    try:
+        user = current_user(db, authorization, dh_session)
+    except HTTPException:
+        user = None
+    return {
+        "user": UserOut.model_validate(user, from_attributes=True).model_dump() if user else None,
+        "demo_mode": get_settings().demo_mode,
+    }
+
+
 # ------------------------------------------------------------------ briefs
 
 
@@ -621,6 +638,21 @@ def requeue_notification(notification_id: uuid.UUID, db: DB, user: CurrentUser):
         return outbox.requeue(db, notification_id)
     except LookupError as e:
         raise _err(404, "not_found", "notification not found") from e
+
+
+# ------------------------------------------------------------------ metrics (A-FR-16)
+
+
+@router.get("/metrics/overview")
+def metrics_overview(db: DB, user: CurrentUser, days: int = 14):
+    require(user, "manager", "analyst", "admin", "auditor")
+    return metrics.overview(db, days=max(1, min(days, 90)))
+
+
+@router.get("/monitor")
+def workflow_monitor(db: DB, user: CurrentUser):
+    require(user, "admin", "auditor", "manager", "analyst")
+    return metrics.monitor(db)
 
 
 @router.get("/schema/requirement")

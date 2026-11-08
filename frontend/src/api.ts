@@ -148,6 +148,7 @@ export const api = {
   health: () => request<{ status: string; llm_provider: string; demo_mode: boolean }>("/v1/health"),
   users: () => request<User[]>("/v1/users"),
   me: () => request<User>("/v1/me"),
+  session: () => request<{ user: User | null; demo_mode: boolean }>("/v1/session"),
   demoLogin: async (user_id: string) => {
     const s = await post<{ user: User }>("/v1/auth/demo-login", { user_id });
     rememberPersona(user_id);
@@ -176,7 +177,42 @@ export const api = {
   finalize: (qid: string, idempotencyKey: string) =>
     post<Quote>(`/v1/quotes/${qid}/finalize`, undefined, { "Idempotency-Key": idempotencyKey }),
   proposalUrl: (qid: string) => `/v1/quotes/${qid}/proposal`,
+
+  overview: (days = 14) => request<Overview>(`/v1/metrics/overview?days=${days}`),
+  monitor: () => request<MonitorData>("/v1/monitor"),
+  requeue: (id: string) => post<NotificationRow>(`/v1/admin/outbox/${id}/requeue`),
+  dispatch: () => post<{ sent: number; retried: number; failed: number }>("/v1/admin/outbox/dispatch"),
 };
+
+export interface Dist { n: number; median_h: number | null; p90_h: number | null }
+export interface Overview {
+  generated_at: string;
+  briefs: { total: number; by_status: Partial<Record<BriefStatus, number>> };
+  lead_time: { to_first_quote: Dist; to_final_proposal: Dist };
+  decisions: { approved: number; rejected: number; rejection_rate: number | null; self_approval_blocked: number };
+  quotes: { total: number; manager_review_share: number | null; operations_review_share: number | null };
+  extraction: {
+    calls: number; errors: Record<string, number>; error_rate: number | null;
+    providers: Record<string, number>; cost_usd_total: string; cost_usd_today: string;
+    tokens: { input: number; output: number }; median_latency_ms: number | null; pii_items_redacted: number;
+  };
+  notifications: { sent: number; pending: number; failed: number };
+  eval: {
+    file: string; provider: string; model: string; started_at: string; cases: number;
+    field_exact_match: number | null; pricing_mismatch_rate: number | null; pii_leaks: number;
+  } | null;
+  daily: { day: string; briefs: number; cost_usd: string }[];
+}
+export interface MonitorData {
+  llm_calls: {
+    id: string; brief_id: string; brief_title: string | null; provider: string; model: string | null;
+    status: "ok" | "error"; error_class: string | null; latency_ms: number; input_tokens: number | null;
+    output_tokens: number | null; cost_usd: string | null; pii_redacted: Record<string, number>;
+    request_id: string | null; at: string;
+  }[];
+  notifications: (NotificationRow & { brief_id: string; brief_title: string | null })[];
+  events: { id: number; brief_id: string | null; brief_title: string | null; actor: string; action: string; request_id: string | null; at: string }[];
+}
 
 // ---------------------------------------------------------------- formatting
 

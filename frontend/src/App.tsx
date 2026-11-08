@@ -5,6 +5,8 @@ import {
 } from "./api";
 import Approvals from "./Approvals";
 import Detail from "./Detail";
+import Monitor from "./Monitor";
+import Overview from "./Overview";
 
 export const SAMPLE_BRIEFS: { label: string; title: string; text: string }[] = [
   {
@@ -69,12 +71,10 @@ export default function App() {
       const h = await api.health();
       setProvider(h.llm_provider);
       if (h.demo_mode) api.users().then(setUsers).catch(() => setUsers([]));
-      try {
-        setMe(await api.me());
-      } catch (e) {
-        if (!(e instanceof ApiError && e.status === 401) || !h.demo_mode) throw e;
-        setMe(await api.demoLogin(rememberedPersona()));
-      }
+      const s = await api.session();
+      if (s.user) setMe(s.user);
+      else if (s.demo_mode) setMe(await api.demoLogin(rememberedPersona()));
+      else throw new ApiError(401, "unauthenticated", "Sign-in is required. Demo mode is off on this server.");
     } catch (e) {
       setAuthError(e as ApiError);
     }
@@ -92,16 +92,17 @@ export default function App() {
     return <main className="main" aria-busy="true"><div className="skeleton" style={{ height: 32, width: 280 }} /></main>;
   }
   const canSeeQueue = me.role !== "sales";
+  const canSeeMetrics = ["manager", "analyst", "admin", "auditor"].includes(me.role);
 
   return (
     <div className="shell">
       <a className="skip-link" href="#main">Skip to content</a>
       <nav className="nav" aria-label="Primary">
         <div className="brand"><span className="brand-mark" aria-hidden />Decision Hub</div>
-        <span className="nav-soon">Overview <small>Phase 5</small></span>
+        {canSeeMetrics && <NavLink to="/overview">Overview</NavLink>}
         <NavLink to="/" end>Requests</NavLink>
         {canSeeQueue && <NavLink to="/approvals">Approvals</NavLink>}
-        <span className="nav-soon">Workflow monitor <small>Phase 5</small></span>
+        {canSeeMetrics && <NavLink to="/monitor">Workflow monitor</NavLink>}
         <div className="nav-foot">
           <label htmlFor="who">Demo persona (signed session)</label>
           <select id="who" className="select" value={me.id} onChange={(e) => switchUser(e.target.value)}>
@@ -121,6 +122,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Inbox me={me} />} />
           <Route path="/approvals" element={<Approvals me={me} />} />
+          <Route path="/overview" element={<Overview />} />
+          <Route path="/monitor" element={<Monitor me={me} />} />
           <Route path="/briefs/:id" element={<Detail me={me} />} />
           <Route path="*" element={<div className="empty"><strong>Page not found</strong><Link to="/">Back to requests</Link></div>} />
         </Routes>

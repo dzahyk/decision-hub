@@ -1,0 +1,30 @@
+# Local, production-like run:  docker compose up --build   ->  http://localhost:8000
+# Demo mode stays on (synthetic personas). Set ANTHROPIC_API_KEY + DH_LLM_PROVIDER=anthropic
+# in your shell to use Claude instead of the mock extractor.
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: hub
+      POSTGRES_PASSWORD: hub-local-only
+      POSTGRES_DB: decision_hub
+    volumes: [dbdata:/var/lib/postgresql]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hub -d decision_hub"]
+      interval: 3s
+      retries: 20
+
+  app:
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+    ports: ["8000:8000"]
+    environment:
+      DH_DATABASE_URL: postgresql+psycopg://hub:hub-local-only@db:5432/decision_hub
+      DH_SESSION_SECRET: change-me-local-demo-only
+      DH_COOKIE_SECURE: "false" # plain http on localhost
+      DH_LLM_PROVIDER: ${DH_LLM_PROVIDER:-mock}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
+volumes:
+  dbdata:

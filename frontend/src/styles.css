@@ -8,7 +8,7 @@
   --violet: #a0a3e9;
   --ink: #172335;
   --ink-2: #48546a;
-  --ink-3: #6b7489;
+  --ink-3: #636c82; /* >= 4.5:1 on pearl, white and info tint (WCAG AA) */
   --line: #e6e9f2;
   --line-strong: #d3d8e6;
   --ok: #1f7a4d;
@@ -237,6 +237,30 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .provider-badge { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--ink-3); }
 
+/* ---------------------------------------------------------------- dashboard */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.tile { padding: 16px 18px; display: grid; gap: 4px; align-content: start; }
+.tile-label { font-size: 12px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+.tile-value { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 8px; }
+.tile-chip { font-size: 11px; height: 20px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.chart-wrap { position: relative; padding: 8px 12px 12px; }
+.chart { width: 100%; height: auto; display: block; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .baseline { stroke: var(--line-strong); stroke-width: 1; }
+.chart .axis { fill: var(--ink-3); font-size: 11px; font-variant-numeric: tabular-nums; }
+.chart .bar { fill: var(--cobalt); transition: fill var(--t-fast) var(--ease); }
+.chart .bar.is-hover { fill: var(--cobalt-ink); }
+.chart rect:focus-visible { outline: 2px solid var(--cobalt); outline-offset: -2px; }
+.tooltip { position: absolute; top: 4px; transform: translateX(-50%); pointer-events: none; background: var(--card); border: 1px solid var(--line-strong); border-radius: 8px; padding: 6px 10px; box-shadow: var(--shadow-lift); display: grid; gap: 2px; font-size: 13px; white-space: nowrap; }
+.funnel { list-style: none; margin: 0; padding: 14px 20px; display: grid; gap: 10px; }
+.funnel li { display: grid; grid-template-columns: 150px 1fr 40px; gap: 12px; align-items: center; font-size: 13px; }
+.funnel-label { color: var(--ink-2); }
+.funnel-track { height: 10px; background: var(--pearl); border-radius: 999px; overflow: hidden; }
+.funnel-bar { display: block; height: 100%; background: var(--cobalt); border-radius: 999px; min-width: 2px; }
+.funnel-n { font-weight: 600; }
+code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; background: var(--pearl); padding: 1px 4px; border-radius: 4px; }
+
 /* ---------------------------------------------------------------- responsive */
 @media (max-width: 1180px) {
   .workspace { grid-template-columns: 1fr 1fr; }
@@ -251,6 +275,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .nav .nav-soon { display: none; }
   .main { padding: 20px 16px 40px; }
   .workspace { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .funnel li { grid-template-columns: 110px 1fr 32px; }
   .table .hide-sm { display: none; }
   .table th, .table td { padding: 10px 14px; }
 }
