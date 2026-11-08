@@ -1,5 +1,18 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import "./landing.css";
+
+// Same page in two places: inside the running app (/welcome) and as a static GitHub Pages site,
+// where there is no server, so demo buttons point to the source and local run instructions.
+const STATIC = import.meta.env.MODE === "pages";
+const BASE = import.meta.env.BASE_URL; // "/" in the app, "/decision-hub/" on Pages
+const REPO = "https://github.com/dzahyk/decision-hub";
+
+function DemoLink({ className, children }: { className: string; children: ReactNode }) {
+  return STATIC
+    ? <a className={className} href={REPO}>View the source</a>
+    : <Link className={className} to="/">{children}</Link>;
+}
 
 // Public product page (spec §02/§03): cinematic hero, then the mechanism shown with real UI.
 // Every number here is a measured result recorded in the repo — nothing illustrative.
@@ -68,13 +81,13 @@ export default function Landing() {
           <a href="#guardrails">Guardrails</a>
           <a href="#evidence">Evidence</a>
         </nav>
-        <Link className="btn btn-primary btn-sm" to="/">Open the demo</Link>
+        <DemoLink className="btn btn-primary btn-sm">Open the demo</DemoLink>
       </header>
 
       <main id="lp-main">
         <section className="lp-hero" id="top" aria-labelledby="lp-title">
           <div className="lp-hero-media" aria-hidden>
-            <img src="/landing/hero.webp" width="1672" height="941" alt="" fetchPriority="high" decoding="async" />
+            <img src={`${BASE}landing/hero.webp`} width="1672" height="941" alt="" fetchPriority="high" decoding="async" />
             <span className="lp-sweep" />
           </div>
           <div className="lp-hero-copy">
@@ -85,10 +98,14 @@ export default function Landing() {
               rules instead of AI, and routes it to the right person — with an audit trail for every step.
             </p>
             <div className="lp-cta">
-              <Link className="btn btn-primary" to="/">Open the live demo</Link>
+              <DemoLink className="btn btn-primary">Open the live demo</DemoLink>
               <a className="btn" href="#how">See how it works</a>
             </div>
-            <p className="lp-note">Portfolio project on synthetic data. Pick any persona — no sign-up.</p>
+            <p className="lp-note">
+              {STATIC
+                ? <>Portfolio project on synthetic data. The full app runs locally with <code>docker compose up</code>.</>
+                : "Portfolio project on synthetic data. Pick any persona — no sign-up."}
+            </p>
           </div>
         </section>
 
@@ -106,7 +123,7 @@ export default function Landing() {
                   <p>{s.body}</p>
                 </div>
                 <figure className="lp-shot">
-                  <img src={`/landing/shots/${s.shot}.webp`} width="1600" height="1000" alt={s.alt} loading="lazy" decoding="async" />
+                  <img src={`${BASE}landing/shots/${s.shot}.webp`} width="1600" height="1000" alt={s.alt} loading="lazy" decoding="async" />
                 </figure>
               </li>
             ))}
@@ -144,8 +161,11 @@ export default function Landing() {
 
         <section className="lp-final" aria-labelledby="final-title">
           <h2 id="final-title">Try the whole journey in two minutes.</h2>
-          <p>Submit a brief as Sales, extract and price it as an Analyst, approve it as a Manager.</p>
-          <Link className="btn btn-primary" to="/">Open the live demo</Link>
+          <p>
+            Submit a brief as Sales, extract and price it as an Analyst, approve it as a Manager.
+            {STATIC && <> Clone the repo and run <code>docker compose up</code> to open it on your machine.</>}
+          </p>
+          <DemoLink className="btn btn-primary">Open the live demo</DemoLink>
         </section>
       </main>
 

@@ -1,5 +1,7 @@
 # Decision Hub — B2B AI Decision & Automation Hub (MVP)
 
+**Product page:** https://dzahyk.github.io/decision-hub/ (static, GitHub Pages) · the full app runs locally with `docker compose up`.
+
 Deal Desk workflow: a free-text campaign brief becomes validated structured requirements,
 a deterministic, policy-flagged quote, and an audit trail. AI suggests fields; code decides prices;
 humans decide outcomes. Spec: *Project 01 Master Specification, Draft v1.1*.
@@ -81,7 +83,12 @@ cd frontend && npx playwright test -c playwright.capture.config.ts   # real-UI s
 
 The capture builds its scenario through the real API on the isolated e2e database and encodes WebP in Chromium.
 
-## Deploy (one container)
+## Deploy
+
+The product page is published to GitHub Pages by `.github/workflows/pages.yml` (`pnpm run build:pages`).
+The full app needs a server and Postgres: run it locally with Docker, or use `render.yaml` on Render.
+
+### One container
 
 ```bash
 docker compose up --build          # app + Postgres on http://localhost:8000

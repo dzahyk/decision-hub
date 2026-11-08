@@ -5,7 +5,11 @@ import App from "./App";
 import Landing from "./Landing";
 import "./styles.css";
 
+// GitHub Pages build: static product page only (no server, so no app routes).
+const pagesOnly = import.meta.env.MODE === "pages";
+
 createRoot(document.getElementById("root")!).render(
+  pagesOnly ? <StrictMode><Landing /></StrictMode> : (
   <StrictMode>
     <BrowserRouter>
       <Routes>
@@ -15,5 +19,6 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/*" element={<App />} />
       </Routes>
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
+  ),
 );
