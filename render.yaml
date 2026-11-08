@@ -1,0 +1,28 @@
+# Render Blueprint: one Docker web service + one Postgres database.
+# Create it from the Render dashboard: New -> Blueprint -> pick this repo.
+services:
+  - type: web
+    name: decision-hub
+    runtime: docker
+    plan: free
+    healthCheckPath: /v1/health
+    autoDeploy: true
+    envVars:
+      - key: DH_DATABASE_URL
+        fromDatabase:
+          name: decision-hub-db
+          property: connectionString
+      - key: DH_SESSION_SECRET
+        generateValue: true # random, stored by Render; sessions survive restarts
+      - key: DH_LLM_PROVIDER
+        value: mock # switch to "anthropic" and add ANTHROPIC_API_KEY in the dashboard to use Claude
+      - key: DH_DEMO_MODE
+        value: "true" # public portfolio demo with synthetic personas
+      - key: DH_LLM_DAILY_BUDGET_USD
+        value: "2"
+
+databases:
+  - name: decision-hub-db
+    plan: free
+    databaseName: decision_hub
+    user: hub

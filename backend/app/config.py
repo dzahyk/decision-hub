@@ -1,7 +1,7 @@
 import secrets
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,6 +9,16 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="DH_", extra="ignore")
 
     database_url: str = "postgresql+psycopg:///decision_hub"
+
+    @field_validator("database_url")
+    @classmethod
+    def _psycopg_driver(cls, v: str) -> str:
+        # Hosts (Render, Heroku-style) hand out postgres:// or postgresql:// URLs.
+        for prefix in ("postgres://", "postgresql://"):
+            if v.startswith(prefix):
+                return "postgresql+psycopg://" + v[len(prefix):]
+        return v
+
     # "mock" needs no credentials. Real providers (Phase 3) read their key from the environment
     # and are never enabled implicitly.
     llm_provider: str = "mock"  # mock | anthropic
