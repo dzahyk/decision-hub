@@ -62,7 +62,7 @@ run against a real Postgres test DB through the real migrations.
 
 ```bash
 createdb decision_hub_e2e          # once
-cd frontend && npx playwright install chromium   # once
+cd frontend && npx playwright install chromium   # once (Playwright 1.62.1)
 npx playwright test                # builds, resets the e2e DB, serves on :8031, runs desktop + mobile
 ```
 

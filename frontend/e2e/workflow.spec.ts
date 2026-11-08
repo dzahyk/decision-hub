@@ -70,7 +70,9 @@ test("incomplete brief is blocked from pricing and explains what is missing", as
   await page.getByRole("button", { name: "Run extraction" }).click();
   await expect(page.getByText("Needs clarification").first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Calculate quote" })).toBeDisabled();
-  await expect(page.getByText(/budget is required/i)).toBeVisible();
+  // shown inline at the field and listed in the inspector
+  await expect(page.getByRole("note").filter({ hasText: /budget is required/i })).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: /Budget — budget is required/ })).toBeVisible();
   await noSeriousA11yIssues(page);
 });
 

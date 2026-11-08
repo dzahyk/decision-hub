@@ -32,7 +32,8 @@ Evidence = automated test name (101 backend tests + Playwright E2E) unless marke
 | A-FR-16 | Dashboard: lead time, rejection rate, pricing mismatch, API cost | `services/metrics.py`, `/v1/metrics/overview`, `Overview.tsx` | `test_uat_a14_dashboard_reconciles_with_event_logs`, E2E overview test | Done (pricing mismatch comes from the latest eval report) |
 | A-NFR-04 | p95 rule calculation < 1 s on 1,000 fixtures | `scripts/bench_pricing.py` | `test_a_nfr_04_pricing_p95_under_one_second`; local run p95 0.014 ms | Done |
 | A-NFR-07 | CI runs unit / integration / UAT, build fails on test failure | `.github/workflows/ci.yml` | not yet run on GitHub (no remote) | Written, unverified |
-| A-NFR-08 | Accessibility: keyboard, labels, not colour-only, contrast | chips with glyphs, focusable chart marks, table fallbacks | axe (WCAG 2.2 AA) in E2E; Lighthouse a11y 100 | Done for audited pages |
+| A-NFR-08 | Accessibility: keyboard, labels, not colour-only, contrast | chips with glyphs, focusable chart marks, table fallbacks | axe (WCAG 2.2 AA, no serious/critical issues) in E2E; Lighthouse a11y 100 | Done for audited pages |
+| UAT end-to-end | Full journey in a real browser | `frontend/e2e/` (Playwright 1.62.1) | 5/5 passing locally, 3 consecutive runs (2026-11-08) | Done |
 | A-NFR-05 | Pricing replayable | pure engine + stored payload | `test_pricing_is_deterministic`, replay test | Done |
 
 Not started: A-FR-18 property-operations adapter (out of MVP scope by design).
