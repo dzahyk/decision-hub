@@ -72,6 +72,10 @@ Not started: A-FR-18 property-operations adapter (out of MVP scope by design).
 15. **Web vitals** were measured locally (production build, desktop, no throttling): LCP 87 ms, CLS 0.00;
     Lighthouse desktop + mobile: Accessibility 100, Best Practices 100, SEO 100. Re-measure on the real host.
 
+16. **Product page** shows real UI captured from the running app (no mock-ups, no generated KPI numbers);
+    the hero is the approved pearl still with CSS motion, the still image doubling as the reduced-motion poster.
+    The 8-second generated video and 24-second film from the spec are not produced.
+
 ## Known limits
 - Proposal export is HTML only (no PDF).
 - Rate card publishing has no admin screen yet (API only).

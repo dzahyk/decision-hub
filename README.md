@@ -8,7 +8,8 @@ humans decide outcomes. Spec: *Project 01 Master Specification, Draft v1.1*.
 operations feasibility → manager approval → exactly-once final proposal → mock email/CRM → audit.
 Phase 3 adds the Claude extraction adapter, PII redaction, cost guards and a 60-case evaluation set.
 Phase 5 adds the Overview dashboard, workflow monitor, Playwright E2E + accessibility tests, CI and a
-single-container deployment. The cinematic landing and case study (Phase 6) are next.
+single-container deployment. Phase 6 adds the public product page at `/welcome` and real-UI screenshots for the
+portfolio case study. Remaining: hosting and the live Claude evaluation.
 
 All data is synthetic. Rate card numbers are portfolio fixtures, not real prices.
 
@@ -68,6 +69,17 @@ npx playwright test                # builds, resets the e2e DB, serves on :8031,
 
 Covers the full journey (brief → extraction → quote → approval → final proposal), the incomplete-brief block,
 role restrictions, the dashboard, axe WCAG 2.2 AA checks and phone-width overflow.
+
+## Product page & screenshots
+
+`/welcome` is the public product page (no sign-in): pearl hero with a slow dolly and light sweep that stop
+under `prefers-reduced-motion`, the five-step mechanism shown with real UI, guardrails, and measured evidence.
+
+```bash
+cd frontend && npx playwright test -c playwright.capture.config.ts   # real-UI screenshots -> shots/ and public/landing/shots/
+```
+
+The capture builds its scenario through the real API on the isolated e2e database and encodes WebP in Chromium.
 
 ## Deploy (one container)
 
