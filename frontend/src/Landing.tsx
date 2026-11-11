@@ -86,16 +86,12 @@ export default function Landing() {
 
       <main id="lp-main">
         <section className="lp-hero" id="top" aria-labelledby="lp-title">
-          <div className="lp-hero-media" aria-hidden>
-            <img src={`${BASE}landing/hero.webp`} width="1672" height="941" alt="" fetchPriority="high" decoding="async" />
-            <span className="lp-sweep" />
-          </div>
           <div className="lp-hero-copy">
             <span className="lp-kicker">B2B Deal Desk · AI with human oversight</span>
-            <h1 id="lp-title">From messy briefs to decisions you can defend.</h1>
+            <h1 id="lp-title">The model has no price field.</h1>
             <p className="lp-lede">
               Decision Hub reads a campaign brief, proves where every field came from, prices it with
-              rules instead of AI, and routes it to the right person — with an audit trail for every step.
+              rules instead of AI, and routes it to the right person, with an audit trail for every step.
             </p>
             <div className="lp-cta">
               <DemoLink className="btn btn-primary">Open the live demo</DemoLink>
@@ -107,6 +103,36 @@ export default function Landing() {
                 : "Portfolio project on synthetic data. Pick any persona — no sign-up."}
             </p>
           </div>
+
+          <figure className="lp-proof">
+            <div className="lp-card lp-brief">
+              <div className="lp-card-head"><span>Brief, as received</span><span>Northwind Cloud</span></div>
+              <p>
+                Client is a <mark data-n="1">mid-market SaaS company</mark> running a demand gen program.
+                Target audience: IT directors and CISOs at 500-5,000 employee companies.{" "}
+                <mark data-n="2">Regions: North America and EMEA.</mark>{" "}
+                <mark data-n="3">We need 1,500 content syndication leads and 300 MQLs.</mark>{" "}
+                <mark data-n="4">Budget is $120k.</mark> Campaign runs 2026-12-01 to 2027-02-28.
+              </p>
+            </div>
+            <div className="lp-card lp-quote">
+              <div className="lp-card-head"><span>Quote, rate card 2026.11-v1</span><span>USD</span></div>
+              <table>
+                <tbody>
+                  <tr><th scope="row"><i>3</i>Content syndication lead<small>1,500 × $45.00 × 1.10 <i>2</i>EMEA</small></th><td>$74,250.00</td></tr>
+                  <tr><th scope="row"><i>3</i>Marketing qualified lead<small>300 × $85.00 × 1.10 <i>2</i>EMEA</small></th><td>$28,050.00</td></tr>
+                  <tr className="lp-quote-total"><th scope="row">Net price</th><td>$102,300.00</td></tr>
+                  <tr><th scope="row">Margin<small>floor 35.00%</small></th><td>41.54%</td></tr>
+                  <tr><th scope="row"><i>4</i>Client budget</th><td>$120,000.00</td></tr>
+                </tbody>
+              </table>
+              <p className="lp-quote-note"><i>1</i>Sector “technology” is inferred, so an analyst confirms it before approval.</p>
+            </div>
+            <figcaption>
+              Real output of the app’s rule-based extractor and pricing engine on its own sample brief.
+              Numbers mark where each value was quoted from. Synthetic data.
+            </figcaption>
+          </figure>
         </section>
 
         <section className="lp-flow" id="how" aria-labelledby="how-title">

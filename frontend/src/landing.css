@@ -18,31 +18,45 @@
 .lp-nav nav a:hover { color: var(--cobalt-ink); }
 
 /* ---------------------------------------------------------------- hero */
+/* The hero shows the mechanism itself: a real brief, its quoted values, and the rule-priced quote. */
 .lp-hero {
-  position: relative; min-height: clamp(560px, calc(100svh - 58px), 980px); /* fills below the nav */
-  display: grid; align-items: center;
+  min-height: clamp(560px, calc(100svh - 58px), 900px);
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); align-items: center;
+  gap: clamp(32px, 5vw, 80px);
   padding: 48px clamp(16px, 6vw, 96px);
-  isolation: isolate;
 }
-.lp-hero-media { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
-.lp-hero-media img {
-  width: 100%; height: 100%; object-fit: cover; object-position: 72% 50%;
-  transform-origin: 70% 50%;
-  animation: lp-dolly 16s ease-in-out infinite alternate;
+.lp-proof { margin: 0; position: relative; display: grid; gap: 0; }
+.lp-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-lift); }
+.lp-card-head { display: flex; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3); }
+.lp-brief { width: 88%; }
+.lp-brief p { margin: 0; padding: 16px 18px 44px; font: 400 14.5px/1.75 ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink-2); }
+.lp-brief mark { color: var(--ink); background: transparent; border-radius: 4px; padding: 1px 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; animation: lp-mark 600ms var(--ease) forwards; }
+.lp-brief mark::after { content: attr(data-n); }
+.lp-brief mark::after {
+  display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 3px; vertical-align: 2px;
+  border-radius: 50%; background: var(--cobalt-ink); color: #fff; font: 600 10px/1 var(--font);
 }
-/* Contrast-safe copy area on the left (spec p.20: 40–50% negative space for HTML text). */
-.lp-hero-media::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(90deg, rgba(247,248,251,0.96) 0%, rgba(247,248,251,0.86) 34%, rgba(247,248,251,0.2) 62%, rgba(247,248,251,0) 78%);
+.lp-brief mark[data-n="1"] { animation-delay: 400ms; }
+.lp-brief mark[data-n="2"] { animation-delay: 700ms; }
+.lp-brief mark[data-n="3"] { animation-delay: 1000ms; }
+.lp-brief mark[data-n="4"] { animation-delay: 1300ms; }
+@keyframes lp-mark { to { background: var(--mark); } }
+
+.lp-quote { width: 80%; justify-self: end; margin-top: -36px; position: relative; animation: lp-rise 700ms 900ms var(--ease) both; }
+.lp-quote table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.lp-quote th, .lp-quote td { padding: 9px 16px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.lp-quote th { font-weight: 500; color: var(--ink); }
+.lp-quote td { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+.lp-quote small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.lp-quote-total th, .lp-quote-total td { font-weight: 700; background: var(--info-bg); }
+.lp-quote-note { margin: 0; padding: 12px 16px 14px; font-size: 13px; line-height: 1.5; color: var(--warn); background: var(--warn-bg); border-radius: 0 0 14px 14px; }
+.lp-proof i {
+  display: inline-grid; place-items: center; width: 16px; height: 16px; margin-right: 6px; vertical-align: 1px;
+  border-radius: 50%; background: var(--cobalt-ink); color: #fff; font: 600 10px/1 var(--font); font-style: normal;
 }
-.lp-sweep {
-  position: absolute; inset: -20% -40%;
-  background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,0.55) 50%, transparent 58%);
-  mix-blend-mode: soft-light;
-  animation: lp-sweep 8s ease-in-out infinite;
-}
-@keyframes lp-dolly { from { transform: scale(1.02) translateX(0); } to { transform: scale(1.07) translateX(-1.2%); } }
-@keyframes lp-sweep { 0%, 15% { transform: translateX(-35%); opacity: 0; } 45% { opacity: 1; } 85%, 100% { transform: translateX(35%); opacity: 0; } }
+.lp-quote small i { margin: 0 3px 0 4px; }
+.lp-quote-note i { background: var(--warn); }
+.lp-proof figcaption { margin-top: 14px; font-size: 12.5px; line-height: 1.5; color: var(--ink-3); max-width: 46ch; }
 
 .lp-hero-copy { max-width: 560px; display: grid; gap: 20px; animation: lp-rise 700ms var(--ease) both; }
 @keyframes lp-rise { from { opacity: 0; transform: translateY(12px); } }
@@ -88,20 +102,20 @@
 
 .lp-footer { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 24px clamp(16px, 6vw, 96px); border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
 
-/* ---------------------------------------------------------------- phone: image above the copy */
+/* ---------------------------------------------------------------- phone: copy, then the proof */
 @media (max-width: 860px) {
   .lp-nav nav { display: none; }
   .lp-nav .btn { margin-left: auto; }
-  .lp-hero { display: block; min-height: auto; padding: 0 16px 40px; }
-  .lp-hero-media { position: relative; inset: auto; z-index: 0; height: 64vw; margin: 0 -16px 8px; }
-  .lp-hero-media img { object-position: 80% 50%; }
-  .lp-hero-media::after { background: linear-gradient(180deg, rgba(247,248,251,0) 55%, var(--pearl) 100%); }
+  .lp-hero { grid-template-columns: 1fr; min-height: auto; padding: 32px 16px 48px; }
+  .lp-brief, .lp-quote { width: 100%; }
+  .lp-quote { margin-top: 12px; }
+  .lp-brief p { padding-bottom: 20px; }
   .lp-step, .lp-step.is-flipped { grid-template-columns: 1fr; }
   .lp-step.is-flipped .lp-step-copy { order: 0; }
 }
 
-/* Reduced motion: the still image is the poster (spec p.19). */
+/* Reduced motion: everything shows at once, highlights included. */
 @media (prefers-reduced-motion: reduce) {
-  .lp-hero-media img, .lp-sweep, .lp-hero-copy { animation: none !important; }
-  .lp-sweep { display: none; }
+  .lp-hero-copy, .lp-quote { animation: none !important; }
+  .lp-brief mark { animation: none !important; background: var(--mark); }
 }
