@@ -48,9 +48,9 @@ Flags: `discount_above_threshold` (>10%), `margin_below_floor`, `over_budget`,
 ops decision (A-BR-03, A-BR-08); flags are computed server-side and cannot be removed via API.
 
 ## Auth
-Six roles (sales, analyst, operations, manager, auditor, admin), checked per endpoint; the admin actions (rate card
-publishing, outbox requeue) are API-only. Sessions are stateless
-HMAC-SHA256-signed tokens in an HttpOnly SameSite=Lax cookie (`app/auth.py`); Bearer tokens are also accepted for
+Five business roles (sales, analyst, operations, manager, auditor) plus a seeded `admin`, checked per endpoint.
+The admin publishes rate card versions (API only, no screen) and runs or retries notification delivery from the
+workflow monitor. Sessions are stateless HMAC-SHA256-signed tokens in an HttpOnly SameSite=Lax cookie (`app/auth.py`); Bearer tokens are also accepted for
 API clients. A client-chosen identity header such as `X-User` is ignored. `DH_DEMO_MODE=true` (default) allows
 password-less persona sign-in for the portfolio demo; production sets `DH_DEMO_MODE=false` and `DH_SESSION_SECRET`.
 See TRACEABILITY decision 5.
