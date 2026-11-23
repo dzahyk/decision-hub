@@ -197,7 +197,7 @@ export default function Landing() {
       </main>
 
       <footer className="lp-footer">
-        <span>Decision Hub — portfolio project by Daffa Zahy Khairy</span>
+        <span>Decision Hub — portfolio project by Daffa Zahy Khairy · <a href="https://dzahyk.github.io/case-decision-hub.html">Read the case study</a> · <a href="https://dzahyk.github.io/">More work</a></span>
         <span>Synthetic data · not affiliated with any company</span>
       </footer>
     </div>
