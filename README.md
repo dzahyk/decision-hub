@@ -140,6 +140,18 @@ uv run python -m app.eval.run --provider anthropic --yes     # real run (~$3 for
 Reports go to `backend/eval/reports/` with model, prompt version, effort, commit, per-field precision/recall,
 pricing mismatch rate, PII leak count, latency, tokens, cost and an error list.
 
+## Contributors
+
+| Contributor | Role | Responsibility |
+|---|---|---|
+| **Daffa Zahy Khairy** ([@dzahyk](https://github.com/dzahyk)) | Author, product owner, reviewer | The concept and the requirements; the rule that *the model proposes, code prices and a person decides*; the seven requirement fields; the pricing and approval policy and the five roles; the design of the 60-case evaluation and its pass targets; reviewing and verifying every result. |
+| **Claude** (Anthropic), used through Claude Code | Implementation and review assistant | Turning specifications I wrote into FastAPI and React code, drafting tests and documentation for my review, and looking for defects in my changes. It decides nothing about scope, business rules or what counts as passing. |
+
+**How AI is used here.** I use an AI coding assistant to speed up execution, so that my time goes to the parts that need
+judgement: what to build, where the model must stop, and how to measure it. Decisions stay with me and are checked by
+evidence rather than trust. The model has no price or approval field by design; the 101 backend tests, 5 browser journeys
+and the 60-case evaluation decide whether a change is accepted.
+
 ## Docs
 - `docs/PLAN.md` — phases, environment constraints, exit gates
 - `docs/ARCHITECTURE.md` — layers, rules the code enforces, pricing formula
