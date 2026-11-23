@@ -1,0 +1,383 @@
+{
+  "meta": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "prompt_version": null,
+    "effort": "medium",
+    "git_commit": "de61a68",
+    "cases_file": "eval/cases.jsonl",
+    "started_at": "2026-11-23T13:50:52+00:00",
+    "duration_s": 22.76
+  },
+  "summary": {
+    "cases": 60,
+    "scored_cases": 0,
+    "errored_cases": 60,
+    "field_exact_match": null,
+    "per_field": {
+      "client_sector": {
+        "counts": {},
+        "precision": null,
+        "recall": null,
+        "exact": null
+      },
+      "campaign_objective": {
+        "counts": {},
+        "precision": null,
+        "recall": null,
+        "exact": null
+      },
+      "audience": {
+        "counts": {},
+        "precision": null,
+        "recall": null,
+        "exact": null
+      },
+      "geo": {
+        "counts": {},
+        "precision": null,
+        "recall": null,
+        "exact": null
+      },
+      "deliverables": {
+        "counts": {},
+        "precision": null,
+        "recall": null,
+        "exact": null
+      },
+      "budget": {
+        "counts": {},
+        "precision": null,
+        "recall": null,
+        "exact": null
+      },
+      "timeline": {
+        "counts": {},
+        "precision": null,
+        "recall": null,
+        "exact": null
+      }
+    },
+    "by_category": {},
+    "validation_agreement": null,
+    "pricing_mismatch_rate": null,
+    "unverified_values": 0,
+    "pii_leaks": [],
+    "errors": {
+      "bad_request": 60
+    },
+    "latency_ms": {
+      "mean": 378.3,
+      "median": 351.0,
+      "p95": 453.3
+    },
+    "tokens": {
+      "input": 0,
+      "output": 0
+    },
+    "cost_usd": "0.0000"
+  },
+  "failures": [],
+  "results": [
+    {
+      "id": "gen-001",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-002",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-003",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-004",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-005",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-006",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-007",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-008",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-009",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-010",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-011",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-012",
+      "category": "complete_en",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-013",
+      "category": "complete_id",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-014",
+      "category": "complete_id",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-015",
+      "category": "complete_id",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-016",
+      "category": "complete_id",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-017",
+      "category": "complete_id",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-018",
+      "category": "complete_id",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-019",
+      "category": "complete_id",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-020",
+      "category": "complete_id",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-021",
+      "category": "complete_id",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-022",
+      "category": "complete_id",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-023",
+      "category": "incomplete",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-024",
+      "category": "incomplete",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-025",
+      "category": "incomplete",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-026",
+      "category": "incomplete",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-027",
+      "category": "incomplete",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-028",
+      "category": "incomplete",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-029",
+      "category": "incomplete",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-030",
+      "category": "incomplete",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-031",
+      "category": "incomplete",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-032",
+      "category": "incomplete",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-033",
+      "category": "nonstandard",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-034",
+      "category": "nonstandard",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-035",
+      "category": "nonstandard",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-036",
+      "category": "nonstandard",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-037",
+      "category": "nonstandard",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-038",
+      "category": "nonstandard",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-039",
+      "category": "nonstandard",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-040",
+      "category": "nonstandard",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-041",
+      "category": "ambiguous",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-042",
+      "category": "ambiguous",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-043",
+      "category": "ambiguous",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-044",
+      "category": "ambiguous",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-045",
+      "category": "ambiguous",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-046",
+      "category": "ambiguous",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-047",
+      "category": "ambiguous",
+      "error": "bad_request"
+    },
+    {
+      "id": "gen-048",
+      "category": "ambiguous",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-001",
+      "category": "contradictory",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-002",
+      "category": "contradictory",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-003",
+      "category": "prompt_injection",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-004",
+      "category": "prompt_injection",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-005",
+      "category": "prompt_injection",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-006",
+      "category": "pii",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-007",
+      "category": "pii",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-008",
+      "category": "out_of_catalog",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-009",
+      "category": "out_of_catalog",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-010",
+      "category": "multiple_amounts",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-011",
+      "category": "currency",
+      "error": "bad_request"
+    },
+    {
+      "id": "hard-012",
+      "category": "mixed_language",
+      "error": "bad_request"
+    }
+  ]
+}

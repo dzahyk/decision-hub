@@ -121,7 +121,10 @@ def test_request_shape_is_safe_and_versioned():
     # schema has no price/discount/approval fields (A-BR-04)
     assert set(OUTPUT_SCHEMA["properties"]) == set(GOOD) and OUTPUT_SCHEMA["additionalProperties"] is False
     assert out.provider == "anthropic" and out.model_version == "claude-opus-5-5"
-    assert out.prompt_version == "extract.claude.v1" and out.provider_request_id == "req_test"
+    assert out.prompt_version == "extract.claude.v2" and out.provider_request_id == "req_test"
+    # the API rejects schemas with more than 16 union-typed (nullable) parameters (found in the first live run)
+    import json as _json
+    assert _json.dumps(OUTPUT_SCHEMA).count("anyOf") <= 16
     # opus 5.5: 1000 × $4/M + 500 × $20/M = 0.004 + 0.010
     assert out.cost_usd == Decimal("0.014000")
 

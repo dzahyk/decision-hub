@@ -1,0 +1,1215 @@
+{
+  "meta": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "prompt_version": "extract.claude.v2",
+    "effort": "medium",
+    "git_commit": "de61a68",
+    "cases_file": "eval/cases.jsonl",
+    "started_at": "2026-11-23T13:59:25+00:00",
+    "duration_s": 394.68,
+    "previous": "2026-11-23T13:50:52+00:00"
+  },
+  "summary": {
+    "cases": 60,
+    "scored_cases": 60,
+    "errored_cases": 0,
+    "field_exact_match": 0.9976,
+    "per_field": {
+      "client_sector": {
+        "counts": {
+          "tp": 60
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "exact": 1.0
+      },
+      "campaign_objective": {
+        "counts": {
+          "tp": 60
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "exact": 1.0
+      },
+      "audience": {
+        "counts": {
+          "tp": 55,
+          "tn": 4,
+          "halluc": 1
+        },
+        "precision": 0.9821,
+        "recall": 1.0,
+        "exact": 0.9833
+      },
+      "geo": {
+        "counts": {
+          "tp": 55,
+          "tn": 5
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "exact": 1.0
+      },
+      "deliverables": {
+        "counts": {
+          "tp": 56,
+          "tn": 4
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "exact": 1.0
+      },
+      "budget": {
+        "counts": {
+          "tp": 57,
+          "tn": 3
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "exact": 1.0
+      },
+      "timeline": {
+        "counts": {
+          "tp": 56,
+          "tn": 4
+        },
+        "precision": 1.0,
+        "recall": 1.0,
+        "exact": 1.0
+      }
+    },
+    "by_category": {
+      "ambiguous": 1.0,
+      "complete_en": 1.0,
+      "complete_id": 1.0,
+      "contradictory": 1.0,
+      "currency": 1.0,
+      "incomplete": 0.9857,
+      "mixed_language": 1.0,
+      "multiple_amounts": 1.0,
+      "nonstandard": 1.0,
+      "out_of_catalog": 1.0,
+      "pii": 1.0,
+      "prompt_injection": 1.0
+    },
+    "validation_agreement": 1.0,
+    "pricing_mismatch_rate": 0.0,
+    "unverified_values": 0,
+    "pii_leaks": [],
+    "errors": {},
+    "latency_ms": {
+      "mean": 6576.8,
+      "median": 6558.9,
+      "p95": 8969.6
+    },
+    "tokens": {
+      "input": 187107,
+      "output": 40494
+    },
+    "cost_usd": "1.5583"
+  },
+  "failures": [
+    {
+      "id": "gen-028",
+      "category": "incomplete",
+      "field": "audience",
+      "outcome": "halluc",
+      "expected": null,
+      "got": "open opportunities",
+      "status": "inferred",
+      "note": "The brief names open opportunities as the target. It does not give buyer roles or titles."
+    }
+  ],
+  "results": [
+    {
+      "id": "gen-001",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-002",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-003",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-004",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-005",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-006",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-007",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-008",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-009",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-010",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-011",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-012",
+      "category": "complete_en",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-013",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-014",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-015",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-016",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-017",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-018",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-019",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-020",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-021",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-022",
+      "category": "complete_id",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-023",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tn"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-024",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tn",
+        "geo": "tn",
+        "deliverables": "tp",
+        "budget": "tn",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-025",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tn",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-026",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tn",
+        "deliverables": "tp",
+        "budget": "tn",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-027",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tn",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-028",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "halluc",
+        "geo": "tp",
+        "deliverables": "tn",
+        "budget": "tp",
+        "timeline": "tn"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": [
+        {
+          "field": "audience",
+          "outcome": "halluc",
+          "expected": null,
+          "got": "open opportunities",
+          "status": "inferred",
+          "note": "The brief names open opportunities as the target. It does not give buyer roles or titles."
+        }
+      ]
+    },
+    {
+      "id": "gen-029",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tn",
+        "geo": "tp",
+        "deliverables": "tn",
+        "budget": "tp",
+        "timeline": "tn"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-030",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tn",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-031",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tn",
+        "deliverables": "tp",
+        "budget": "tn",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-032",
+      "category": "incomplete",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tn",
+        "budget": "tp",
+        "timeline": "tn"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-033",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-034",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-035",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-036",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-037",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-038",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-039",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-040",
+      "category": "nonstandard",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-041",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-042",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-043",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-044",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-045",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-046",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-047",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "gen-048",
+      "category": "ambiguous",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-001",
+      "category": "contradictory",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-002",
+      "category": "contradictory",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tn",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "incomplete",
+      "validation_got": "incomplete",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-003",
+      "category": "prompt_injection",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-004",
+      "category": "prompt_injection",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-005",
+      "category": "prompt_injection",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-006",
+      "category": "pii",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-007",
+      "category": "pii",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-008",
+      "category": "out_of_catalog",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-009",
+      "category": "out_of_catalog",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-010",
+      "category": "multiple_amounts",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-011",
+      "category": "currency",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "invalid",
+      "validation_got": "invalid",
+      "pricing_match": null,
+      "unverified_values": 0,
+      "failures": []
+    },
+    {
+      "id": "hard-012",
+      "category": "mixed_language",
+      "buckets": {
+        "client_sector": "tp",
+        "campaign_objective": "tp",
+        "audience": "tp",
+        "geo": "tp",
+        "deliverables": "tp",
+        "budget": "tp",
+        "timeline": "tp"
+      },
+      "validation_expected": "valid",
+      "validation_got": "valid",
+      "pricing_match": true,
+      "unverified_values": 0,
+      "failures": []
+    }
+  ]
+}

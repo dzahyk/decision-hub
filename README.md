@@ -11,7 +11,7 @@ operations feasibility → manager approval → exactly-once final proposal → 
 Phase 3 adds the Claude extraction adapter, PII redaction, cost guards and a 60-case evaluation set.
 Phase 5 adds the Overview dashboard, workflow monitor, Playwright E2E + accessibility tests, CI and a
 single-container deployment. Phase 6 adds the public product page at `/welcome` and real-UI screenshots for the
-portfolio case study. Remaining: hosting and the live Claude evaluation.
+portfolio case study. 2026-11-23: first live Claude evaluation (see [Evaluation](#evaluation-a-fr-15)). Remaining: hosting.
 
 All data is synthetic. Rate card numbers are portfolio fixtures, not real prices.
 
@@ -34,7 +34,7 @@ proposal. **AI suggests fields, code decides the price, a person decides the out
 | Feature | What it does | How it works |
 |---|---|---|
 | **Brief intake** | Sales pastes a brief; it becomes a tracked request. | `POST /v1/briefs` with an `Idempotency-Key`, so a repeat returns the same request. Stored in PostgreSQL. |
-| **Structured extraction with sources** | Reads the brief into seven requirement fields: sector, objective, audience, regions, deliverables, budget, timeline. Every value quotes its source sentence; guesses are labelled "Inferred, check" and missing values stay missing. | An extractor interface with two providers: a labelled rule-based mock (default) and an optional Claude adapter. The model output has no price or approval field. Personal data is replaced with placeholders before any model call. |
+| **Structured extraction with sources** | Reads the brief into seven requirement fields: sector, objective, audience, regions, deliverables, budget, timeline. Every value quotes its source sentence; guesses are labelled "Inferred, check" and missing values stay missing. | An extractor interface with two providers: a labelled rule-based mock (default) and a Claude adapter, evaluated live on the 60-case set (see Evaluation). The model output has no price or approval field. Personal data is replaced with placeholders before any model call. |
 | **Correction as new revisions** | An analyst fixes or confirms fields. | Each correction creates a new `requirement_revisions` row; nothing is overwritten. |
 | **Deterministic pricing and policy flags** | Prices the quote and flags what needs a person, e.g. a discount above 10% needs manager review. | Plain code over a versioned rate card (regional rates, volume, discount, delivery cost, margin). The same input always gives the same price. |
 | **Operations feasibility** | Operations confirms whether off-catalog work can be delivered. | Flagged quotes go to operations before they reach approval. |
@@ -139,6 +139,29 @@ uv run python -m app.eval.run --provider anthropic --yes     # real run (~$3 for
 60 synthetic, labelled briefs in `backend/eval/cases.jsonl` (regenerate with `eval/make_cases.py`).
 Reports go to `backend/eval/reports/` with model, prompt version, effort, commit, per-field precision/recall,
 pricing mismatch rate, PII leak count, latency, tokens, cost and an error list.
+
+### Results (60 synthetic briefs, same set for both providers)
+
+| Measure | Rule-based baseline | Claude Opus 5.5 (effort medium) |
+|---|---|---|
+| Field-level exact match (target ≥ 90%) | 96.7% | **99.8%** |
+| Validation status agreement | 85.0% | **100%** |
+| Valid briefs that would be priced differently | 20.8% | **0.0%** |
+| Personal data sent to the provider | 0 | 0 |
+| Values without a verified source quote | 0 | 0 |
+| Invented values | 1 | 1 (an audience the brief never named, `gen-028`) |
+| Latency per brief, median | 0.2 ms | 6.6 s |
+| Cost for all 60 briefs | $0 | $1.56 |
+
+Reports: [`mock-rules-v1`](backend/eval/reports/20261108T034755Z_mock_mock-rules-v1.md) ·
+[`claude-opus-5-5`](backend/eval/reports/20261123T135925Z_anthropic_claude-opus-5-5.md).
+
+**What the first live run found.** The first attempt failed on all 60 briefs before the model answered: the output schema
+had 22 nullable fields and the API accepts at most 16 ([report](backend/eval/reports/20261123T135052Z_anthropic_claude-opus-5-5.md)).
+`source_quote` and `note` are now plain strings (empty means none), which leaves 8; a test keeps the schema under the limit.
+
+**Limits of these numbers.** One run on one synthetic set that I wrote and labelled myself, with no held-out split and
+no second labeller. The one invented value is why analyst review stays mandatory even at 99.8%.
 
 ## Contributors
 
