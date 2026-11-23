@@ -2,12 +2,12 @@
 
 ```
 frontend (Vite/React/TS, pearl UI)
-        │  JSON over HTTP, X-User demo header (Phase 4: real session auth)
+        │  JSON over HTTP, HMAC-signed session in an HttpOnly cookie (Bearer for API clients)
         ▼
 backend  FastAPI  ── api/        HTTP layer: request/response models, role checks, error mapping
                   ── services/   workflow orchestration, transactions, audit writes
                   ── domain/     PURE code: requirement schema, validation, pricing, rate card
-                  ── llm/        provider adapter: mock | anthropic (Phase 3)
+                  ── llm/        provider adapter: mock (default) | anthropic
         │
         ▼
 PostgreSQL  users · briefs · requirement_revisions · rate_cards · quotes · audit_events
@@ -33,7 +33,7 @@ PostgreSQL  users · briefs · requirement_revisions · rate_cards · quotes · 
 received ──extract──► clarification_needed ──analyst edit──► ready_for_pricing ──price──► priced
      └─────extract (complete)──────────────────────────────► ready_for_pricing
 ```
-Phase 4 adds quote states: `draft → needs_review → approved | rejected → finalized`.
+Quote states: `draft → needs_review → approved | rejected → finalized`.
 
 ## Pricing model (simulated rate card v1)
 
@@ -47,6 +47,10 @@ Flags: `discount_above_threshold` (>10%), `margin_below_floor`, `over_budget`,
 `capacity_exceeded`, `out_of_catalog`. Any of the first two or `out_of_catalog` requires a manager /
 ops decision (A-BR-03, A-BR-08); flags are computed server-side and cannot be removed via API.
 
-## Auth (Slice 0)
-Demo-only: the `X-User` header names a seeded user; roles are checked per endpoint. This is not
-real authentication and is replaced in Phase 4.
+## Auth
+Six roles (sales, analyst, operations, manager, auditor, admin), checked per endpoint; the admin actions (rate card
+publishing, outbox requeue) are API-only. Sessions are stateless
+HMAC-SHA256-signed tokens in an HttpOnly SameSite=Lax cookie (`app/auth.py`); Bearer tokens are also accepted for
+API clients. A client-chosen identity header such as `X-User` is ignored. `DH_DEMO_MODE=true` (default) allows
+password-less persona sign-in for the portfolio demo; production sets `DH_DEMO_MODE=false` and `DH_SESSION_SECRET`.
+See TRACEABILITY decision 5.

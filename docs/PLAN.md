@@ -1,6 +1,6 @@
 # Implementation Plan — B2B AI Decision & Automation Hub
 
-Source of truth: `Project_01_B2B_AI_Decision_Automation_Hub_Master_Spec.pdf` (Draft v1.1, 08 Nov 2026).
+Source of truth: `Project_01_B2B_AI_Decision_Automation_Hub_Master_Spec.pdf` (Draft v1.1, 08 Nov 2026; my own spec, private, not included in this repo).
 Scope: the BRD MVP only (Deal Desk domain). Property-operations adapter (A-FR-18) is Phase 2 of the *product*, not built here.
 
 ## Environment constraints (checked 2026-11-08)
@@ -17,7 +17,7 @@ Scope: the BRD MVP only (Deal Desk domain). Property-operations adapter (A-FR-18
 
 Each phase ends with working, tested behaviour — not empty scaffolding.
 
-### Slice 0 (now) — smallest end-to-end path
+### Slice 0 — smallest end-to-end path
 Brief intake (idempotent) → extraction via provider adapter (mock) → schema validation with
 missing-field detection → analyst correction → deterministic pricing on a versioned rate card →
 audit events → minimal pearl UI showing source vs extracted vs pricing.

@@ -1,11 +1,11 @@
-# Requirement traceability — after Phase 5 (2026-11-08)
+# Requirement traceability — updated 2026-11-23 (after the first live Claude evaluation)
 
 Evidence = automated test name (101 backend tests + Playwright E2E) unless marked "browser" or "eval".
 
 | Req | What | Code | Evidence | State |
 |---|---|---|---|---|
 | A-FR-01/02 | Idempotent intake; raw text, source, time, owner | `services/briefs.create_brief` | `test_uat_a01_*` | Done |
-| A-FR-03 | Versioned extraction with provenance | `llm/claude.py`, `llm/mock.py`, `run_extraction` | `test_uat_a02_*`, `test_request_shape_is_safe_and_versioned`, `test_unverifiable_quote_is_downgraded_not_trusted` | Done; Claude adapter tested with a fake client, no live run yet |
+| A-FR-03 | Versioned extraction with provenance | `llm/claude.py`, `llm/mock.py`, `run_extraction` | `test_uat_a02_*`, `test_request_shape_is_safe_and_versioned`, `test_unverifiable_quote_is_downgraded_not_trusted` | Done; Claude adapter tested with a fake client and evaluated live once on the 60-case set (`backend/eval/reports/20261123T135925Z_anthropic_claude-opus-5-5.md`) |
 | A-FR-04 | Schema validation | `domain/requirement.py` | `test_malformed_values…`, `test_uat_a03_*` | Done |
 | A-FR-05 | Analyst correction; raw untouched | `edit_requirements` | `test_uat_a04_*` | Done |
 | A-FR-06/07 | Deterministic pricing + policy flags | `domain/pricing.py` | pricing oracle tests, `test_uat_a06_*` | Done |
@@ -18,20 +18,20 @@ Evidence = automated test name (101 backend tests + Playwright E2E) unless marke
 | A-FR-14 | Export proposal citing quote/requirement/rate card versions | `proposal.py`, `/quotes/{id}/proposal` | `test_uat_a12_*`, `test_proposal_escapes_user_text` | Done (HTML; no PDF) |
 | A-FR-17 | Admin publishes rate card versions; old quotes replay | `approvals.publish_rate_card`, `/quotes/{id}/replay` | `test_uat_a15_*`, `test_invalid_rate_cards…` | Done (API only, no admin UI) |
 | A-BR-01..03 | Required fields; version stored; flags need manager | see above | see above | Done |
-| A-BR-04 | LLM can't touch rates/approvals | adapter returns schema fields only | `test_instructions_inside_the_brief…` | Done for mock |
+| A-BR-04 | LLM can't touch rates/approvals | adapter returns schema fields only | `test_instructions_inside_the_brief…`, `test_request_shape_is_safe_and_versioned` (output schema has no price or approval field) | Done (mock and Claude) |
 | A-BR-05 | No self-approval | `decide` checks quote + brief creator | `test_uat_a07_*` (service level) | Done |
 | A-BR-06 | Change after approval → new revision, approval void | `supersede_open_quotes` | `test_uat_a08_*`, `test_stale_revision…` | Done |
 | A-BR-07 | Exactly one final per quote / key | unique constraints + row locks | `test_finalize_is_exactly_once`, `test_uat_a10_concurrent…` (10/10 runs) | Done |
 | A-BR-08 | Off-catalog → operations note before approval | `add_feasibility_note`, `decide` | `test_out_of_catalog…`, `test_not_feasible…` | Done |
 | A-NFR-01 | RBAC; identity from server-signed session | `auth.py`, `current_user`, `require` | `test_client_chosen_identity_header_is_ignored`, `test_forged_and_expired…`, role tests | Done (demo mode on by default) |
 | A-NFR-03 | Idempotency, transactions, retry policy | outbox, locks | see A-FR-11/12, A-BR-07 | Done |
-| A-FR-15 | Repeatable benchmark (≥50 cases) with prompt/model version and error report | `eval/cases.jsonl` (60), `app/eval/` | `test_eval_runs_end_to_end_on_mock`, `eval/reports/*` | Done (mock baseline stored; Claude run pending approval) |
+| A-FR-15 | Repeatable benchmark (≥50 cases) with prompt/model version and error report | `eval/cases.jsonl` (60), `app/eval/` | `test_eval_runs_end_to_end_on_mock`, `backend/eval/reports/*` | Done (mock baseline 96.7% field match; Claude Opus 5.5 live run 99.8%, $1.56; the first live attempt failed on the 16-nullable-field schema limit and was fixed in `1ebfd6a`) |
 | A-NFR-02 | PII redacted before any LLM call | `llm/redact.py`, `run_extraction` | `test_redaction_*`, `test_service_redacts_restores_verifies_and_logs`, eval `pii_leaks = 0` | Done (cue-based names only) |
 | A-NFR-06 | Request id, latency, tokens, cost, error class recorded | `models.LlmCall`, `_record_call` | `test_service_redacts…`, `test_failed_call_is_logged…` | Done |
 | A-NFR-09 | Token cap, timeout, circuit breaker, spend guard | `llm/claude.py`, `_check_daily_budget` | `test_circuit_breaker…`, `test_daily_budget_guard…`, `test_sdk_errors_map…` | Done |
 | A-FR-16 | Dashboard: lead time, rejection rate, pricing mismatch, API cost | `services/metrics.py`, `/v1/metrics/overview`, `Overview.tsx` | `test_uat_a14_dashboard_reconciles_with_event_logs`, E2E overview test | Done (pricing mismatch comes from the latest eval report) |
 | A-NFR-04 | p95 rule calculation < 1 s on 1,000 fixtures | `scripts/bench_pricing.py` | `test_a_nfr_04_pricing_p95_under_one_second`; local run p95 0.014 ms | Done |
-| A-NFR-07 | CI runs unit / integration / UAT, build fails on test failure | `.github/workflows/ci.yml` | not yet run on GitHub (no remote) | Written, unverified |
+| A-NFR-07 | CI runs unit / integration / UAT, build fails on test failure | `.github/workflows/ci.yml` | GitHub Actions CI green on main (backend, frontend, e2e, docker jobs; run 45189623171 on `1ebfd6a`, 2026-11-23) | Done |
 | A-NFR-08 | Accessibility: keyboard, labels, not colour-only, contrast | chips with glyphs, focusable chart marks, table fallbacks | axe (WCAG 2.2 AA, no serious/critical issues) in E2E; Lighthouse a11y 100 | Done for audited pages |
 | UAT end-to-end | Full journey in a real browser | `frontend/e2e/` (Playwright 1.62.1) | 5/5 passing locally, 3 consecutive runs (2026-11-08) | Done |
 | A-NFR-05 | Pricing replayable | pure engine + stored payload | `test_pricing_is_deterministic`, replay test | Done |
@@ -73,16 +73,20 @@ Not started: A-FR-18 property-operations adapter (out of MVP scope by design).
     Lighthouse desktop + mobile: Accessibility 100, Best Practices 100, SEO 100. Re-measure on the real host.
 
 16. **Product page** shows real UI captured from the running app (no mock-ups, no generated KPI numbers);
-    the hero is the approved pearl still with CSS motion, the still image doubling as the reduced-motion poster.
+    the hero shows the sample Northwind brief next to the quote the pricing engine builds from it ($102,300 at
+    41.54% margin): real product output, no generated imagery. The highlight and rise animations stop under
+    `prefers-reduced-motion`.
     The 8-second generated video and 24-second film from the spec are not produced.
 
 ## Known limits
 - Proposal export is HTML only (no PDF).
 - Rate card publishing has no admin screen yet (API only).
-- Docker image and CI workflow are written but not executed here (Docker is not installed on this machine and the
-  repo has no GitHub remote yet).
-- Mock extractor is a regex parser, clearly labelled. The Claude adapter is built and tested offline; no live
-  Claude run has been made yet (needs an API key and approval of the ~$3 eval cost).
+- CI runs on GitHub Actions and is green on main. The Docker image is built in CI (`docker build`) but has not been
+  deployed to a host yet.
+- Mock extractor is a regex parser, clearly labelled. Claude was evaluated live once (claude-opus-5-5, effort
+  medium, prompt `extract.claude.v2`, 60 synthetic cases, $1.56; see the README Evaluation section). That is one run
+  on one set labelled by the author, with no held-out split and no second labeller. It produced one invented value
+  (`gen-028` audience), so analyst review stays mandatory.
 - The 48 generated eval cases share phrasing families, so a rule parser scores high on them (mock: 96.7% field
   match). The 12 hand-written hard cases are the discriminating part — read results per category.
 - Name redaction only catches names after a contact cue ("Contact:", "PIC:", "cc"); free-floating names are not

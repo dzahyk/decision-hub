@@ -66,6 +66,7 @@ const EVIDENCE = [
   ["101", "backend tests, incl. a hand-checked pricing oracle"],
   ["5 / 5", "browser journeys passing, with WCAG 2.2 AA scans"],
   ["60", "labelled synthetic briefs in the evaluation set"],
+  ["99.8%", "fields exactly right with Claude Opus 5.5 on those 60 briefs (rule baseline 96.7%); one set, labelled by the author"],
   ["0.014 ms", "p95 pricing time over 1,000 quotes"],
   ["100", "Lighthouse accessibility, desktop and mobile"],
 ];

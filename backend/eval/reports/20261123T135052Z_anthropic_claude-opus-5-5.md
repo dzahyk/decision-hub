@@ -1,5 +1,10 @@
 # Extraction eval — anthropic / claude-opus-5-5
 
+> **Failed run, kept on purpose.** All 60 requests were rejected (HTTP 400, `bad_request`) before the model
+> answered, so no tokens were used and no scores exist. Cause: the output schema had 22 nullable fields and the API
+> accepts at most 16. Fixed in commit `1ebfd6a`. `Prompt None` and the empty tables below come from this failure.
+> The successful run is [20261123T135925Z](20261123T135925Z_anthropic_claude-opus-5-5.md).
+
 Prompt `None` · effort `medium` · commit `de61a68` · 2026-11-23T13:50:52+00:00 · 60 cases (60 errored)
 
 Simulated portfolio evaluation on synthetic briefs; not a claim about any company's data.

@@ -4,14 +4,18 @@
 
 Deal Desk workflow: a free-text campaign brief becomes validated structured requirements,
 a deterministic, policy-flagged quote, and an audit trail. AI suggests fields; code decides prices;
-humans decide outcomes. Spec: *Project 01 Master Specification, Draft v1.1*.
+humans decide outcomes. Built against my own written spec (*Project 01 Master Specification, Draft v1.1*, not
+published). Requirement IDs such as A-FR-15 or UAT-A01 come from that spec; [docs/TRACEABILITY.md](docs/TRACEABILITY.md)
+maps each one to code and tests.
 
-**Status: Phase 4 done** — intake → extraction → validation → correction → pricing →
-operations feasibility → manager approval → exactly-once final proposal → mock email/CRM → audit.
-Phase 3 adds the Claude extraction adapter, PII redaction, cost guards and a 60-case evaluation set.
-Phase 5 adds the Overview dashboard, workflow monitor, Playwright E2E + accessibility tests, CI and a
-single-container deployment. Phase 6 adds the public product page at `/welcome` and real-UI screenshots for the
-portfolio case study. 2026-11-23: first live Claude evaluation (see [Evaluation](#evaluation-a-fr-15)). Remaining: hosting.
+**Status: the MVP is built across all six planned phases, CI on GitHub Actions is green, and the first live Claude
+evaluation ran on 2026-11-23 (see [Evaluation](#evaluation-a-fr-15)). It is not hosted yet; the full app runs locally.**
+
+Flow: intake → extraction → validation → correction → pricing → operations feasibility → manager approval →
+exactly-once final proposal → mock email/CRM → audit. Phase 3 added the Claude extraction adapter, PII redaction,
+cost guards and a 60-case evaluation set. Phase 5 added the Overview dashboard, workflow monitor, Playwright E2E +
+accessibility tests, CI and a single-container Docker image. Phase 6 added the public product page at `/welcome`
+and real-UI screenshots. Build history: [docs/PLAN.md](docs/PLAN.md).
 
 All data is synthetic. Rate card numbers are portfolio fixtures, not real prices.
 
@@ -46,7 +50,7 @@ Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (layers, rules the code en
 
 ## Run locally
 
-Needs Python 3.12 + `uv`, Node 20+, PostgreSQL running locally.
+Needs Python 3.12 + `uv`, Node 20+ (CI uses 22) with pnpm (CI uses 11.25.0), PostgreSQL running locally.
 
 ```bash
 createdb decision_hub && createdb decision_hub_test
@@ -81,12 +85,15 @@ set `DH_DEMO_MODE=false` and `DH_SESSION_SECRET` for anything holding real data.
 
 ## Tests
 
+Run from the repo root. Backend tests use the `decision_hub_test` database from "Run locally"
+(override with `DH_TEST_DATABASE_URL`).
+
 ```bash
-cd backend && uv run pytest && uv run ruff check app tests
-cd frontend && pnpm typecheck
+(cd backend && uv run pytest && uv run ruff check app tests)
+(cd frontend && pnpm typecheck)
 ```
 
-64 backend tests: pricing oracle (hand-computed), validation, extractor, sessions, approvals,
+101 backend tests: pricing oracle (hand-computed), validation, extractor, sessions, approvals,
 concurrent finalize, outbox fault injection and rate card replay — named after the spec's UAT IDs,
 run against a real Postgres test DB through the real migrations.
 
@@ -103,8 +110,9 @@ role restrictions, the dashboard, axe WCAG 2.2 AA checks and phone-width overflo
 
 ## Product page & screenshots
 
-`/welcome` is the public product page (no sign-in): pearl hero with a slow dolly and light sweep that stop
-under `prefers-reduced-motion`, the five-step mechanism shown with real UI, guardrails, and measured evidence.
+`/welcome` is the public product page (no sign-in): a hero showing the sample Northwind brief beside the quote the
+pricing engine builds from it (the highlight and rise animations stop under `prefers-reduced-motion`), the five-step
+mechanism shown with real UI, guardrails, and measured evidence.
 
 ```bash
 cd frontend && npx playwright test -c playwright.capture.config.ts   # real-UI screenshots -> shots/ and public/landing/shots/
@@ -133,7 +141,7 @@ and runs as a non-root user. On a host, set `DH_DATABASE_URL`, a long random `DH
 cd backend
 uv run python -m app.eval.run                                # free, mock provider
 uv run python -m app.eval.run --provider anthropic           # prints a cost estimate, then stops
-uv run python -m app.eval.run --provider anthropic --yes     # real run (~$3 for 60 cases)
+uv run python -m app.eval.run --provider anthropic --yes     # real run (measured $1.56 for 60 cases; the ~$3 estimate is an upper bound)
 ```
 
 60 synthetic, labelled briefs in `backend/eval/cases.jsonl` (regenerate with `eval/make_cases.py`).
@@ -157,8 +165,11 @@ Reports: [`mock-rules-v1`](backend/eval/reports/20261108T034755Z_mock_mock-rules
 [`claude-opus-5-5`](backend/eval/reports/20261123T135925Z_anthropic_claude-opus-5-5.md).
 
 **What the first live run found.** The first attempt failed on all 60 briefs before the model answered: the output schema
-had 22 nullable fields and the API accepts at most 16 ([report](backend/eval/reports/20261123T135052Z_anthropic_claude-opus-5-5.md)).
-`source_quote` and `note` are now plain strings (empty means none), which leaves 8; a test keeps the schema under the limit.
+had 22 nullable fields and the API accepts at most 16. Its [failed-run report](backend/eval/reports/20261123T135052Z_anthropic_claude-opus-5-5.md)
+shows 60 × `bad_request` and 0 tokens. The [fix (commit `1ebfd6a`)](https://github.com/dzahyk/decision-hub/commit/1ebfd6a)
+makes `source_quote` and `note` plain strings (empty means none), which leaves 8; a test keeps the schema under the limit.
+Both live reports are stamped `de61a68`, the last commit at the time: the successful run used the fix before it was
+committed, so the code it ran is in commit `1ebfd6a`.
 
 **Limits of these numbers.** One run on one synthetic set that I wrote and labelled myself, with no held-out split and
 no second labeller. The one invented value is why analyst review stays mandatory even at 99.8%.
